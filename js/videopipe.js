@@ -42,6 +42,17 @@ function VideoPipe(stream, forceSend, forceReceive, handler) {
                     {scalabilityMode: "L3T3"}
                 ]
             });
+
+            const codecs = RTCRtpSender.getCapabilities('video').codecs;
+            const vp9Codecs = codecs.filter(c => c.mimeType === 'video/VP9');
+
+            if (vp9Codecs.length === 0) {
+                console.error("VP9 codec not supported.");
+            } else {
+                tr.setCodecPreferences(vp9Codecs);
+                console.log("set VP9 codec as preferred.")
+            }
+
         }
     });
 }

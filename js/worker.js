@@ -32,15 +32,6 @@ function dump(encodedFrame, direction, max = 16) {
     for (let j = 0; j < data.length && j < max; j++) {
         bytes += (data[j] < 16 ? '0' : '') + data[j].toString(16) + ' ';
     }
-    const metadata = encodedFrame.getMetadata();
-    console.log(performance.now().toFixed(2), direction, bytes.trim(),
-        'len=' + encodedFrame.data.byteLength,
-        'type=' + (encodedFrame.type || 'audio'),
-        'ts=' + encodedFrame.timestamp,
-        'ssrc=' + metadata.synchronizationSource,
-        'pt=' + (metadata.payloadType || '(unknown)'),
-        'mimeType=' + (metadata.mimeType || '(unknown)'),
-    );
 }
 
 let scount = 0;
@@ -80,8 +71,15 @@ function decodeFunction(encodedFrame, controller) {
     if (rcount++ < 30) { // dump the first 30 packets
         dump(encodedFrame, 'recv');
     }
+
+    const metadata = encodedFrame.getMetadata();
+    console.log(
+        "frame==\n\t", performance.now().toFixed(2),
+        "\n\tTemporal Index", metadata.temporalIndex,
+        "\n\t Spatial Index:", metadata.spatialIndex)
+
     const view = new DataView(encodedFrame.data);
-    console.log("encoded frame data: ", view);
+    console.log("encoded frame data: ", view.byteLength);
     const checksum = encodedFrame.data.byteLength > 4 ? view.getUint32(encodedFrame.data.byteLength - 4) : false;
     if (currentCryptoKey) {
         if (checksum !== 0xDEADBEEF) {
