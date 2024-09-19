@@ -44,13 +44,14 @@ function VideoPipe(stream, forceSend, forceReceive, handler) {
             });
 
             const codecs = RTCRtpSender.getCapabilities('video').codecs;
-            const vp9Codecs = codecs.filter(c => c.mimeType === 'video/VP9');
+            // const vp9Codecs = codecs.filter(c => c.mimeType === 'video/VP9');
+            const av1Codecs = codecs.filter(c => c.mimeType === 'video/AV1');
 
-            if (vp9Codecs.length === 0) {
-                console.error("VP9 codec not supported.");
+            if (av1Codecs.length === 0) {
+                console.error("AV1 codec not supported.");
             } else {
-                tr.setCodecPreferences(vp9Codecs);
-                console.log("set VP9 codec as preferred.")
+                tr.setCodecPreferences(av1Codecs);
+                console.log("AV1 codec as preferred.")
             }
 
         }
