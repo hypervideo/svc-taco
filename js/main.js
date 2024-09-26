@@ -117,6 +117,14 @@ function start() {
             alert('getUserMedia() failed');
             console.log('getUserMedia() error: ', e);
         });
+
+    navigator.mediaCapabilities.encodingInfo({
+        type: "webrtc",
+        video: {
+            contentType: "video/AV1",
+            scalabilityMode: "L3T3"
+        }
+    })
 }
 
 
