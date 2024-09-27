@@ -116,7 +116,8 @@ async function start() {
         });
 
     try {
-        await navigator.mediaCapabilities.encodingInfo({
+
+        let config = {
             type: "webrtc",
             video: {
                 contentType: "video/AV1",
@@ -126,7 +127,11 @@ async function start() {
                 bitrate: 10000,
                 framerate: 29.97,
             }
-        })
+        }
+
+        await navigator.mediaCapabilities.encodingInfo(config);
+
+        console.log("encoding info: ", config);
     } catch (e) {
         console.error(e);
     }

@@ -23,11 +23,17 @@
     </div>
 
     <div class="grid grid-cols-2 h-48" id="videos">
-        <video autoplay class="h-48" id="video1" muted playsinline></video>
-        <video autoplay class="h-48" id="video2" playsinline></video>
+        <div>
+            <video autoplay class="h-48" id="video1" muted playsinline></video>
+            <p>p1</p>
+        </div>
+        <div>
+            <video autoplay class="h-48" id="video2" playsinline></video>
+            <p>p2</p>
+        </div>
     </div>
 
-    <div class="bg-orange-300 flex-1">
+    <div class="invisible flex-1">
         <span id="banner"></span>
         <div>
             Crypto key: <input id="crypto-key" type="text"/>
