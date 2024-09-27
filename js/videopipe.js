@@ -36,7 +36,6 @@ function VideoPipe(stream, forceSend, forceReceive, handler) {
             this.pc1.addTrack(track, stream)
         } else {
             let tr = this.pc1.addTransceiver(track, {
-                direction: "sendrecv",
                 streams: [stream],
                 sendEncodings: [
                     {scalabilityMode: "L3T3"}

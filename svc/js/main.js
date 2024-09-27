@@ -142,12 +142,12 @@ async function start() {
                 capabilityPromises.push(navigator.mediaCapabilities.encodingInfo({
                     type: 'webrtc',
                     video: {
-                        contentType: mimeType,
+                        contentType: "video/av1",
                         width: 640,
                         height: 480,
                         bitrate: 10000,
                         framerate: 29.97,
-                        scalabilityMode: mode
+                        scalabilityMode: "L1T3"
                     }
                 }));
             }

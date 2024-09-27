@@ -58,9 +58,6 @@ let remoteStream;
 // Use opus by default.
 // eslint-disable-next-line prefer-const
 let preferredAudioCodecMimeType = 'audio/opus';
-// Use VP8 by default to limit depacketization issues.
-// eslint-disable-next-line prefer-const
-let preferredVideoCodecMimeType = 'video/VP8';
 
 const supportsSetCodecPreferences = window.RTCRtpTransceiver &&
     'setCodecPreferences' in window.RTCRtpTransceiver.prototype;
@@ -194,9 +191,9 @@ function maybeSetCodecPreferences(trackEvent) {
         codecs.splice(selectedCodecIndex, 1);
         codecs.unshift(selectedCodec);
         trackEvent.transceiver.setCodecPreferences(codecs);
-    } else if (trackEvent.track.kind === 'video' && preferredVideoCodecMimeType) {
+    } else if (trackEvent.track.kind === 'video') {
         const {codecs} = RTCRtpReceiver.getCapabilities('video');
-        const selectedCodecIndex = codecs.findIndex(c => c.mimeType === preferredVideoCodecMimeType);
+        const selectedCodecIndex = codecs.findIndex(c => c.mimeType === "video/AV1");
         const selectedCodec = codecs[selectedCodecIndex];
         codecs.splice(selectedCodecIndex, 1);
         codecs.unshift(selectedCodec);
