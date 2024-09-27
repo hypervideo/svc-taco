@@ -106,10 +106,10 @@ function gotRemoteStream(stream) {
     video2.srcObject = stream;
 }
 
-function start() {
+async function start() {
     console.log('Requesting local stream');
     startButton.disabled = true;
-    const options = {audio: true, video: true};
+    const options = {audio: false, video: true};
     navigator.mediaDevices
         .getUserMedia(options)
         .then(gotStream)
@@ -118,13 +118,21 @@ function start() {
             console.log('getUserMedia() error: ', e);
         });
 
-    navigator.mediaCapabilities.encodingInfo({
-        type: "webrtc",
-        video: {
-            contentType: "video/AV1",
-            scalabilityMode: "L3T3"
-        }
-    })
+    try {
+        await navigator.mediaCapabilities.encodingInfo({
+            type: "webrtc",
+            video: {
+                contentType: "video/AV1",
+                scalabilityMode: "L3T3",
+                width: 640,
+                height: 480,
+                bitrate: 10000,
+                framerate: 29.97,
+            }
+        })
+    } catch (e) {
+        console.error(e);
+    }
 }
 
 
