@@ -6,6 +6,7 @@
 const video1 = document.querySelector('video#video1');
 const video2 = document.querySelector('video#video2');
 const videoMonitor = document.querySelector('#video-monitor');
+const video3 = document.querySelector('#videodecoder');
 
 const startButton = document.getElementById('startButton');
 const callButton = document.getElementById('callButton');

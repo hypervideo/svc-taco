@@ -36,13 +36,58 @@ function dump(encodedFrame, direction, max = 16) {
 
 let scount = 0;
 
+const init = {
+    output: (frame) => {
+        console.log("Good frame", frame.data);
+    },
+    error: (error) => {
+        console.error(`Failed to decode: `, error.toString());
+    }
+};
+
+const videoDecoder = new VideoDecoder(init);
+
+const config = {
+    codec: "av01.2.15M.10.0.100.09.16.09.0",
+    codedWidth: 640,
+    codedHeight: 480,
+    hardwareAcceleration: 'prefer-software'
+}
+
+videoDecoder.configure(config);
+
+let initialized = false;
+
 function encodeFunction(encodedFrame, controller) {
     if (scount++ < 30) { // dump the first 30 packets.
         dump(encodedFrame, 'send');
     }
 
-    const metadata = encodedFrame.getMetadata();
-    console.log('wef', {temporal: metadata.temporalIndex, spatial: metadata.spatialIndex});
+    const {temporalIndex, spatialIndex} = encodedFrame.getMetadata();
+    console.log('wef', {temporal: temporalIndex, spatial: spatialIndex});
+
+    let {timestamp, data, type} = encodedFrame;
+
+    if (!initialized && encodedFrame.type !== "key") {
+        console.warn("Skipping non-keyframe. Waiting for a keyframe");
+        controller.enqueue(encodedFrame);
+        return;
+    }
+
+
+    initialized = true;
+
+    const chunk = new EncodedVideoChunk({
+        timestamp,
+        data,
+        type,
+    })
+
+    try {
+        videoDecoder.decode(chunk);
+    } catch (e) {
+        console.error("Error during decoding: ", e.toString());
+    }
 
     controller.enqueue(encodedFrame);
 }
