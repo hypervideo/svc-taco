@@ -38,7 +38,7 @@ let scount = 0;
 
 const init = {
     output: (frame) => {
-        console.log("Good frame", frame.data);
+        console.log("Good frame", frame);
     },
     error: (error) => {
         console.error(`Failed to decode: `, error.toString());
@@ -47,7 +47,6 @@ const init = {
 
 const videoDecoder = new VideoDecoder(init);
 
-let videoConfig = null;
 
 async function initializeDecoder() {
     const config = {
@@ -90,7 +89,6 @@ function encodeFunction(encodedFrame, controller) {
         return;
     }
 
-
     initialized = true;
 
     const chunk = new EncodedVideoChunk({
@@ -99,11 +97,7 @@ function encodeFunction(encodedFrame, controller) {
         type,
     })
 
-    try {
-        videoDecoder.decode(chunk);
-    } catch (e) {
-        console.error("Error during decoding: ", e.toString());
-    }
+    videoDecoder.decode(chunk);
 
     controller.enqueue(encodedFrame);
 }
