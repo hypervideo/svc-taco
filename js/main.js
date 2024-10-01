@@ -143,7 +143,7 @@ async function start() {
 // See
 //   https://developer.mozilla.org/en-US/docs/Web/API/Worker
 // for basic concepts.
-const worker = new Worker('./js/worker.js', {name: 'E2EE worker'});
+const worker = new Worker('./js/worker.js', {name: 'E2EE worker', type: "module"});
 
 function setupSenderTransform(sender) {
     if (window.RTCRtpScriptTransform) {

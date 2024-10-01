@@ -47,14 +47,30 @@ const init = {
 
 const videoDecoder = new VideoDecoder(init);
 
-const config = {
-    codec: "av01.2.15M.10.0.100.09.16.09.0",
-    codedWidth: 640,
-    codedHeight: 480,
-    hardwareAcceleration: 'prefer-software'
+let videoConfig = null;
+
+async function initializeDecoder() {
+    const config = {
+        codec: "av01.2.15M.10.0.100.09.16.09.0",
+        hardwareAcceleration: 'prefer-software',
+    }
+
+    try {
+        const support = await VideoDecoder.isConfigSupported(config);
+
+        if (support.supported) {
+            console.log("Video Decoder configuration is supported:", support.config);
+            videoDecoder.configure(support.config);
+        } else {
+            console.error("Configuration is not supported");
+        }
+    } catch (e) {
+        console.error("Something went wrong when checking if isConfigSupported")
+    }
 }
 
-videoDecoder.configure(config);
+initializeDecoder();
+
 
 let initialized = false;
 
