@@ -80,7 +80,7 @@ function encodeFunction(encodedFrame, controller) {
     const {temporalIndex: temporal, spatialIndex: spatial} = encodedFrame.getMetadata();
     let {timestamp, data, type} = encodedFrame;
 
-    console.log('\nencoded frame', {timestamp, temporal, spatial});
+    // console.log('\nencoded frame', {timestamp, temporal, spatial});
 
     const chunk = new EncodedVideoChunk({
         timestamp,
