@@ -1,30 +1,8 @@
 /*
- * This is a worker doing the encode/decode transformations to add end-to-end
- * encryption to a WebRTC PeerConnection using the Insertable Streams API.
+ * This is a worker doing the encode/decode transformations to a WebRTC PeerConnection using the Insertable Streams API.
  */
 
 'use strict';
-let currentCryptoKey;
-let useCryptoOffset = true;
-let currentKeyIdentifier = 0;
-
-// If using crypto offset (controlled by a checkbox):
-// Do not encrypt the first couple of bytes of the payload. This allows
-// a middle to determine video keyframes or the opus mode being used.
-// For VP8 this is the content described in
-//   https://tools.ietf.org/html/rfc6386#section-9.1
-// which is 10 bytes for key frames and 3 bytes for delta frames.
-// For opus (where encodedFrame.type is not set) this is the TOC byte from
-//   https://tools.ietf.org/html/rfc6716#section-3.1
-// TODO: make this work for other codecs.
-//
-// It makes the (encrypted) video and audio much more fun to watch and listen to
-// as the decoder does not immediately throw a fatal error.
-const frameTypeToCryptoOffset = {
-    key: 10,
-    delta: 3,
-    undefined: 1,
-};
 
 function dump(encodedFrame, direction, max = 16) {
     const data = new Uint8Array(encodedFrame.data);
@@ -90,6 +68,7 @@ function encodeFunction(encodedFrame, controller) {
 
     // ruling out saturated queue size
     // console.log("decode queue size at", timestamp, videoDecoder.decodeQueueSize);
+
     videoDecoder.decode(chunk);
     controller.enqueue(encodedFrame);
 }
@@ -100,15 +79,6 @@ function decodeFunction(encodedFrame, controller) {
     if (rcount++ < 30) { // dump the first 30 packets
         dump(encodedFrame, 'recv');
     }
-
-    // const metadata = encodedFrame.getMetadata();
-    // console.log(
-    //     "frame==\n\t", performance.now().toFixed(2),
-    //     "\n\tTemporal Index", metadata.temporalIndex,
-    //     "\n\t Spatial Index:", metadata.spatialIndex)
-
-    const view = new DataView(encodedFrame.data);
-    //   console.log("encoded frame data: ", view.byteLength);
 
     controller.enqueue(encodedFrame);
 }
@@ -135,13 +105,6 @@ function handleTransform(operation, readable, writable) {
 onmessage = (event) => {
     if (event.data.operation === 'encode' || event.data.operation === 'decode') {
         return handleTransform(event.data.operation, event.data.readable, event.data.writable);
-    }
-    if (event.data.operation === 'setCryptoKey') {
-        if (event.data.currentCryptoKey !== currentCryptoKey) {
-            currentKeyIdentifier++;
-        }
-        currentCryptoKey = event.data.currentCryptoKey;
-        useCryptoOffset = event.data.useCryptoOffset;
     }
 };
 
