@@ -46,10 +46,6 @@ let localStream;
 // eslint-disable-next-line no-unused-vars
 let remoteStream;
 
-// Preferring a certain codec is an expert option without GUI.
-// Use opus by default.
-// eslint-disable-next-line prefer-const
-let preferredAudioCodecMimeType = 'audio/opus';
 
 const supportsSetCodecPreferences = window.RTCRtpTransceiver &&
     'setCodecPreferences' in window.RTCRtpTransceiver.prototype;
@@ -169,7 +165,10 @@ function setupReceiverTransform(receiver) {
         return;
     }
 
+    // not a lot of documentation on this
+    // https://developer.mozilla.org/en-US/docs/Web/API/RTCRtpReceiver and grep for `createEncodedStreams()`
     const receiverStreams = receiver.createEncodedStreams();
+    console.log(`receiverStreams`, receiverStreams);
     const {readable, writable} = receiverStreams;
     worker.postMessage({
         operation: 'decode',
@@ -184,6 +183,11 @@ function call() {
     console.log('Starting call');
     startToEnd = new VideoPipe(localStream, true, true, e => {
         setupReceiverTransform(e.receiver);
+
+        if (!supportsSetCodecPreferences) {
+            throw new Error(`Codec is not supported`);
+        }
+
         gotRemoteStream(e.streams[0]);
     });
     startToEnd.pc1.getSenders().forEach(setupSenderTransform);

@@ -16,12 +16,13 @@
 
 <div class="h-screen w-screen flex flex-col" id="container">
 
-    <div class="h-12 text-xl space-x-8 p-2" id="buttons">
-        <button class="disabled:hidden" id="startButton">Start</button>
-        <button class="disabled:hidden" disabled id="callButton">Call</button>
-        <button class="disabled:hidden" disabled id="hangupButton">Hang Up</button>
+    <div class="h-12 text-xl space-x-8" id="buttons">
+        <button class="disabled:hidden p-2 bg-emerald-300" id="startButton">Start (Press 1)</button>
+        <button class="disabled:hidden p-2 bg-amber-300" disabled id="callButton">Call (Press 2)</button>
+        <button class="disabled:hidden p-2 bg-red-300" disabled id="hangupButton">Hang Up (Press 3)</button>
     </div>
 
+    <span id="banner"></span>
     <div class="grid grid-cols-2 h-48" id="videos">
         <div>
             <video autoplay class="h-48" id="video1" muted playsinline></video>
@@ -31,29 +32,7 @@
             <video autoplay class="h-48" id="video2" playsinline></video>
             <p>p2</p>
         </div>
-        <div>
-            <video autoplay class="h-48" id="videodecoder" playsinline></video>
-            <p>p3</p>
-        </div>
     </div>
-
-    <div class="invisible flex-1">
-        <span id="banner"></span>
-        <div>
-            Crypto key: <input id="crypto-key" type="text"/>
-            Encrypt first bytes: <input id="crypto-offset" type="checkbox"/>
-        </div>
-        <div>
-            <h2>Middlebox</h2>
-            <div id="monitor">
-                <video autoplay class="h-48" id="video-monitor" muted playsinline></video>
-                Switch audio to middlebox: <input id="mute-middlebox" type="checkbox"/>
-            </div>
-        </div>
-
-        <div id="status"></div>
-    </div>
-
 
 </div>
 
