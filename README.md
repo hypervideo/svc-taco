@@ -17,6 +17,10 @@ and AV1.
 # this assumes you have Golang and Just installed
 # inside project root directory
 just run # or go run server.go
+
+> [!NOTE]  
+> When running the demo, make sure to disable cache!
+
 ```
 
 ## Resources:

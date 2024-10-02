@@ -121,7 +121,7 @@ async function start() {
         let config = {
             type: "webrtc",
             video: {
-                contentType: "video/AV1",
+                contentType: "video/av01.2.15M.10.0.100.09.16.09.0",
                 scalabilityMode: "L3T3",
                 width: 640,
                 height: 480,
@@ -134,7 +134,7 @@ async function start() {
 
         console.log("encoding info: ", config);
     } catch (e) {
-        console.error(e);
+        console.error(`Failed to configure WebRTC encoder`, e);
     }
 }
 

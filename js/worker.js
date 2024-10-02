@@ -41,7 +41,10 @@ const init = {
         console.log("Good frame", frame);
     },
     error: (error) => {
-        console.error(`Failed to decode: `, error.toString());
+        let message = error.message;
+        let code = error.name;
+
+        console.error(`Failed to decode: `, message, code);
     }
 };
 
@@ -70,26 +73,15 @@ async function initializeDecoder() {
 
 initializeDecoder();
 
-
-let initialized = false;
-
 function encodeFunction(encodedFrame, controller) {
     if (scount++ < 30) { // dump the first 30 packets.
         dump(encodedFrame, 'send');
     }
 
-    const {temporalIndex, spatialIndex} = encodedFrame.getMetadata();
-    console.log('wef', {temporal: temporalIndex, spatial: spatialIndex});
-
+    const {temporalIndex: temporal, spatialIndex: spatial} = encodedFrame.getMetadata();
     let {timestamp, data, type} = encodedFrame;
 
-    if (!initialized && encodedFrame.type !== "key") {
-        console.warn("Skipping non-keyframe. Waiting for a keyframe");
-        controller.enqueue(encodedFrame);
-        return;
-    }
-
-    initialized = true;
+    console.log('\nencoded frame', {timestamp, temporal, spatial});
 
     const chunk = new EncodedVideoChunk({
         timestamp,
@@ -98,7 +90,6 @@ function encodeFunction(encodedFrame, controller) {
     })
 
     videoDecoder.decode(chunk);
-
     controller.enqueue(encodedFrame);
 }
 
@@ -116,7 +107,7 @@ function decodeFunction(encodedFrame, controller) {
     //     "\n\t Spatial Index:", metadata.spatialIndex)
 
     const view = new DataView(encodedFrame.data);
-    console.log("encoded frame data: ", view.byteLength);
+    //   console.log("encoded frame data: ", view.byteLength);
 
     controller.enqueue(encodedFrame);
 }
