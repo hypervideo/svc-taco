@@ -42,17 +42,16 @@ function VideoPipe(stream, forceSend, forceReceive, handler) {
                 ]
             });
 
-            // const codecs = RTCRtpSender.getCapabilities('video').codecs;
-            // // const vp9Codecs = codecs.filter(c => c.mimeType === 'video/VP9');
-            // const av1Codecs = codecs.filter(c => c.mimeType === 'video/AV1');
-            //
-            //
-            // if (av1Codecs.length === 0) {
-            //     console.error("AV1 codec not supported.");
-            // } else {
-            //     tr.setCodecPreferences(av1Codecs);
-            //     console.log("AV1 codec as preferred.", av1Codecs.length);
-            // }
+            const videoCodecs = RTCRtpSender.getCapabilities('video').codecs;
+            const av1Codecs = videoCodecs.filter(codec => codec.mimeType === 'video/AV1');
+
+            // Ensure AV1 is the only codec used.
+            if (av1Codecs.length > 0) {
+                tr.setCodecPreferences(av1Codecs);
+                console.log("AV1 codec set as the only preferred codec.", av1Codecs);
+            } else {
+                console.error("AV1 codec not supported by this browser.");
+            }
 
         }
     });

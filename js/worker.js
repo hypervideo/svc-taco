@@ -38,7 +38,7 @@ let scount = 0;
 
 const init = {
     output: (frame) => {
-        console.log("Good frame", frame);
+        console.log("Good frame", frame.timestamp, frame);
     },
     error: (error) => {
         let message = error.message;
@@ -54,7 +54,6 @@ const videoDecoder = new VideoDecoder(init);
 async function initializeDecoder() {
     const config = {
         codec: "av01.2.15M.10.0.100.09.16.09.0",
-        hardwareAcceleration: 'prefer-software',
     }
 
     try {
@@ -89,6 +88,8 @@ function encodeFunction(encodedFrame, controller) {
         type,
     })
 
+    // ruling out saturated queue size
+    // console.log("decode queue size at", timestamp, videoDecoder.decodeQueueSize);
     videoDecoder.decode(chunk);
     controller.enqueue(encodedFrame);
 }
