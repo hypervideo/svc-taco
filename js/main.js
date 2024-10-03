@@ -16,18 +16,20 @@ const banner = document.querySelector('#banner');
 window.focus();
 
 document.addEventListener('keydown', (e) => {
-    e.preventDefault();
 
     switch (e.key) {
         case "1": {
+            e.preventDefault();
             !startButton.disabled && start();
             break;
         }
         case "2": {
+            e.preventDefault()
             !callButton.disabled && call();
             break;
         }
         case "3": {
+            e.preventDefault();
             !hangupButton.disabled && hangup();
             break
         }
