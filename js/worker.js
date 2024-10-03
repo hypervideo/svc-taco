@@ -8,6 +8,8 @@
 const videoDecoder = new VideoDecoder({
     output: (frame) => {
         console.log("Good frame", frame.timestamp, frame);
+        postMessage({operation: "videoframe", frame}, [frame]);
+
     },
     error: (error) => {
         let message = error.message;
