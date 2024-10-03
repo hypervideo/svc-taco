@@ -7,38 +7,58 @@
     <meta content="WebRTC code samples" name="description">
     <meta content="width=device-width, user-scalable=yes, initial-scale=1, maximum-scale=1" name="viewport">
 
-    <title>SVC</title>
-    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700" rel="stylesheet" type="text/css">
+    <title>SVC Taco</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: "Times New Roman", Times, serif;
+        }
+    </style>
 </head>
 
 <body>
 
-<div class="h-screen w-screen flex flex-col" id="container">
+<div class="h-screen w-screen flex flex-col p-2" id="container">
+    <div class="space-y-2 mb-8">
+        <a class="underline hover:no-underline text-xl" href="https://github.com/hypervideo/svc-taco">svc-taco</a>
+        <p>
+            svc-taco opens a unidirectional WebRTC connection between your local computer and a remote peer. As the
+            sender streams SVC-encoded video frames to the receiver, the VideoDecoder intercepts and decodes the encoded
+            chunks into VideoFrames.
 
-    <div class="h-12 text-xl space-x-8" id="buttons">
-        <button class="disabled:hidden p-2 bg-emerald-300" id="startButton">Start (Press 1)</button>
-        <button class="disabled:hidden p-2 bg-amber-300" disabled id="callButton">Call (Press 2)</button>
-        <button class="disabled:hidden p-2 bg-red-300" disabled id="hangupButton">Hang Up (Press 3)</button>
+            <br>
+            <br>
+            Check your networks tab! There is no network call.
+        </p>
     </div>
 
-    <span id="banner"></span>
-    <div class="grid grid-cols-3 h-48" id="videos">
-        <div>
-            <video autoplay class="h-48" id="video1" muted playsinline></video>
-            <p>p1</p>
+    <div>
+
+        <div class="h-12 text-xl w-56" id="buttons">
+            <button class="disabled:hidden p-2 bg-emerald-300" id="startButton">Start (Press 1)</button>
+            <button class="disabled:hidden p-2 bg-amber-300" disabled id="callButton">Call (Press 2)</button>
+            <button class="disabled:hidden p-2 bg-red-300" disabled id="hangupButton">Hang Up (Press 3)</button>
         </div>
 
-        <div>
-            <video autoplay class="h-48" id="video3" playsinline></video>
-            <p>p3</p>
-        </div>
-    </div>
+        <span id="banner"></span>
+        <div class="grid grid-cols-2 h-48" id="videos">
+            <div>
+                <video autoplay class="h-48 border" id="video1" muted playsinline></video>
+                <p>WebRTC Sender (Computer)</p>
+            </div>
 
-    <div class="invisible">
-        <div>
-            <video autoplay class="h-48" id="video2" playsinline></video>
-            <p>p2</p>
+            <div>
+                <video autoplay class="h-48 border" id="video3" playsinline></video>
+                <p>Frames Decoded by WebCodec's VideoDecoder</p>
+            </div>
+        </div>
+
+
+        <div class="bg-opacity-30 mt-8">
+            <div>
+                <video autoplay class="h-48 border" id="video2" playsinline></video>
+                <p>WebRTC Receiver (Remote Peer)</p>
+            </div>
         </div>
     </div>
 
