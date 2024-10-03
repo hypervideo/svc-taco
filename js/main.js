@@ -129,7 +129,7 @@ async function start() {
         let config = {
             type: "webrtc",
             video: {
-                contentType: "video/av01.2.15M.10.0.100.09.16.09.0",
+                contentType: "video/av01.0.04M.08",
                 scalabilityMode: "L3T3",
                 width: 640,
                 height: 480,

@@ -22,7 +22,8 @@ const videoDecoder = new VideoDecoder({
 
 async function initializeDecoder() {
     const config = {
-        codec: "av01.2.15M.10.0.100.09.16.09.0",
+        codec: "av01.0.04M.08",
+        hardwareAcceleration: 'prefer-software',
     }
 
     try {
