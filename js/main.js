@@ -91,7 +91,7 @@ function gotStream(stream) {
 }
 
 
-let remoteTrackGenerator;
+const remoteTrackGenerator = new MediaStreamTrackGenerator({kind: "video"});
 worker.onmessage = async ({data}) => {
     if (data.frame) {
         const frame = data.frame;
@@ -102,7 +102,6 @@ worker.onmessage = async ({data}) => {
 }
 
 async function setupRemoteStreamTrack() {
-    remoteTrackGenerator = new MediaStreamTrackGenerator({kind: "video"});
     video3.srcObject = new MediaStream([remoteTrackGenerator]);
 }
 
