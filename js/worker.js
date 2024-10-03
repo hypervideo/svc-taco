@@ -4,17 +4,8 @@
 
 'use strict';
 
-function dump(encodedFrame, direction, max = 16) {
-    const data = new Uint8Array(encodedFrame.data);
-    let bytes = '';
-    for (let j = 0; j < data.length && j < max; j++) {
-        bytes += (data[j] < 16 ? '0' : '') + data[j].toString(16) + ' ';
-    }
-}
 
-let scount = 0;
-
-const init = {
+const videoDecoder = new VideoDecoder({
     output: (frame) => {
         console.log("Good frame", frame.timestamp, frame);
     },
@@ -24,9 +15,7 @@ const init = {
 
         console.error(`Failed to decode: `, message, code);
     }
-};
-
-const videoDecoder = new VideoDecoder(init);
+});
 
 
 async function initializeDecoder() {
@@ -51,10 +40,6 @@ async function initializeDecoder() {
 initializeDecoder();
 
 function encodeFunction(encodedFrame, controller) {
-    if (scount++ < 30) { // dump the first 30 packets.
-        dump(encodedFrame, 'send');
-    }
-
     const {temporalIndex: temporal, spatialIndex: spatial} = encodedFrame.getMetadata();
     let {timestamp, data, type} = encodedFrame;
 
@@ -73,14 +58,9 @@ function encodeFunction(encodedFrame, controller) {
     controller.enqueue(encodedFrame);
 }
 
-let rcount = 0;
 
-function decodeFunction(encodedFrame, controller) {
-    if (rcount++ < 30) { // dump the first 30 packets
-        dump(encodedFrame, 'recv');
-    }
-
-    controller.enqueue(encodedFrame);
+function decodeFunction(videoFrame, controller) {
+    controller.enqueue(videoFrame);
 }
 
 function handleTransform(operation, readable, writable) {
