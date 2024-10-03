@@ -17,25 +17,25 @@
 <div class="h-screen w-screen flex flex-col" id="container">
 
     <div class="h-12 text-xl space-x-8" id="buttons">
-        <button class="disabled:hidden p-2 bg-emerald-300" id="startButton">Start (Press 1)</button>
-        <button class="disabled:hidden p-2 bg-amber-300" disabled id="callButton">Call (Press 2)</button>
-        <button class="disabled:hidden p-2 bg-red-300" disabled id="hangupButton">Hang Up (Press 3)</button>
+        <button class="disabled:hidden p-2 bg-emerald-300" id="startButton">Start</button>
+        <button class="disabled:hidden p-2 bg-amber-300" disabled id="callButton">Call</button>
+        <button class="disabled:hidden p-2 bg-red-300" disabled id="hangupButton">Hang Up</button>
     </div>
 
     <span id="banner"></span>
     <div class="grid grid-cols-3 h-48" id="videos">
         <div>
             <video autoplay class="h-48" id="video1" muted playsinline></video>
-            <p>p1</p>
         </div>
-        <div>
-            <video autoplay class="h-48" id="video2" playsinline></video>
-            <p>p2</p>
-        </div>
+
         <div>
             <video autoplay class="h-48" id="video3" playsinline></video>
-            <p>p3</p>
         </div>
+    </div>
+
+    <div class="invisible">
+        <video autoplay class="h-0" id="video2" playsinline></video>
+        <p>p2</p>
     </div>
 
 </div>

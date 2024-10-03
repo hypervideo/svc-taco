@@ -13,30 +13,6 @@ const hangupButton = document.getElementById('hangupButton');
 
 const banner = document.querySelector('#banner');
 
-window.focus();
-
-document.addEventListener('keydown', (e) => {
-
-    switch (e.key) {
-        case "1": {
-            e.preventDefault();
-            !startButton.disabled && start();
-            break;
-        }
-        case "2": {
-            e.preventDefault()
-            !callButton.disabled && call();
-            break;
-        }
-        case "3": {
-            e.preventDefault();
-            !hangupButton.disabled && hangup();
-            break
-        }
-        default:
-            break;
-    }
-});
 
 startButton.onclick = start;
 callButton.onclick = call;

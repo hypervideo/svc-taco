@@ -53,7 +53,15 @@ async function handleTransform(operation, readable, writable) {
 
                 let {timestamp, data, type} = encodedFrame;
 
-                // console.log('\nencoded frame', {timestamp, temporal, spatial});
+                // Uncomment this to see the temporal base layer being served!
+                // if (temporal !== 0) {
+                //     return;
+                // }
+                // if (spatial !== 0) {
+                //     return;
+                // }
+
+                console.log(`temporal: ${temporal}, spatial: ${spatial}`)
 
                 const chunk = new EncodedVideoChunk({
                     timestamp,
