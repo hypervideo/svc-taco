@@ -5,6 +5,7 @@
 
 const video1 = document.querySelector('video#video1');
 const video2 = document.querySelector('video#video2');
+const video3 = document.querySelector('video#video3');
 
 const startButton = document.getElementById('startButton');
 const callButton = document.getElementById('callButton');
@@ -46,6 +47,12 @@ let localStream;
 // eslint-disable-next-line no-unused-vars
 let remoteStream;
 
+// We use a Worker to transform `Encoded
+// See
+//   https://developer.mozilla.org/en-US/docs/Web/API/Worker
+// for basic concepts.
+const worker = new Worker('./js/worker.js', {name: 'E2EE worker', type: "module"});
+
 
 const supportsSetCodecPreferences = window.RTCRtpTransceiver &&
     'setCodecPreferences' in window.RTCRtpTransceiver.prototype;
@@ -81,6 +88,20 @@ function gotStream(stream) {
     video1.srcObject = stream;
     localStream = stream;
     callButton.disabled = false;
+}
+
+
+let remoteTrackGenerator;
+worker.onmessage = async ({data}) => {
+    if (data.frame) {
+        const frame = data.frame;
+        await remoteTrackGenerator.writable.getWriter().write(frame);
+    }
+}
+
+async function setupRemoteStreamTrack() {
+    remoteTrackGenerator = new MediaStreamTrackGenerator({kind: "video"});
+    video3.srcObject = new MediaStream([remoteTrackGenerator]);
 }
 
 function gotRemoteStream(stream) {
@@ -123,12 +144,6 @@ async function start() {
     }
 }
 
-
-// We use a Worker to transform `Encoded
-// See
-//   https://developer.mozilla.org/en-US/docs/Web/API/Worker
-// for basic concepts.
-const worker = new Worker('./js/worker.js', {name: 'E2EE worker', type: "module"});
 
 // Here we want to decode the encoded video chunk
 function setupSenderTransform(sender) {
@@ -181,6 +196,9 @@ function call() {
     callButton.disabled = true;
     hangupButton.disabled = false;
     console.log('Starting call');
+
+    setupRemoteStreamTrack();
+
     startToEnd = new VideoPipe(localStream, true, true, e => {
         setupReceiverTransform(e.receiver);
 
