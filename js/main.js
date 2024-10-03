@@ -95,7 +95,9 @@ let remoteTrackGenerator;
 worker.onmessage = async ({data}) => {
     if (data.frame) {
         const frame = data.frame;
-        await remoteTrackGenerator.writable.getWriter().write(frame);
+        const writer = await remoteTrackGenerator.writable.getWriter();
+        await writer.write(frame);
+        await writer.releaseLock();
     }
 }
 
