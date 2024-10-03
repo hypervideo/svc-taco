@@ -39,52 +39,42 @@ async function initializeDecoder() {
 
 initializeDecoder();
 
-function encodeFunction(encodedFrame, controller) {
-    const {temporalIndex: temporal, spatialIndex: spatial} = encodedFrame.getMetadata();
-    let {timestamp, data, type} = encodedFrame;
 
-    // console.log('\nencoded frame', {timestamp, temporal, spatial});
-
-    const chunk = new EncodedVideoChunk({
-        timestamp,
-        data,
-        type,
-    })
-
-    // ruling out saturated queue size
-    // console.log("decode queue size at", timestamp, videoDecoder.decodeQueueSize);
-
-    videoDecoder.decode(chunk);
-    controller.enqueue(encodedFrame);
-}
-
-
-function decodeFunction(videoFrame, controller) {
-    controller.enqueue(videoFrame);
-}
-
-function handleTransform(operation, readable, writable) {
+async function handleTransform(operation, readable, writable) {
     if (operation === 'encode') {
-        const transformStream = new TransformStream({
-            transform: encodeFunction,
-        });
-        readable
-            .pipeThrough(transformStream)
+        await readable
             .pipeTo(writable);
     } else if (operation === 'decode') {
-        const transformStream = new TransformStream({
-            transform: decodeFunction,
+        const transformer = new TransformStream({
+            async transform(encodedFrame, controller) {
+                const {temporalIndex: temporal, spatialIndex: spatial} = encodedFrame.getMetadata();
+
+                let {timestamp, data, type} = encodedFrame;
+
+                // console.log('\nencoded frame', {timestamp, temporal, spatial});
+
+                const chunk = new EncodedVideoChunk({
+                    timestamp,
+                    data,
+                    type,
+                })
+
+                await videoDecoder.decode(chunk);
+                controller.enqueue(encodedFrame);
+            },
         });
-        readable
-            .pipeThrough(transformStream)
+        await readable
+            .pipeThrough(transformer)
             .pipeTo(writable);
     }
 }
 
 // Handler for messages, including transferable streams.
-onmessage = (event) => {
-    if (event.data.operation === 'encode' || event.data.operation === 'decode') {
-        return handleTransform(event.data.operation, event.data.readable, event.data.writable);
+onmessage = async ({data}) => {
+    let {operation} = data;
+    if (operation === 'encode' || operation === 'decode') {
+        let {readable, writable} = data;
+        return await handleTransform(operation, readable, writable);
     }
 };
 
