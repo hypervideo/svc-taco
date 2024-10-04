@@ -43,6 +43,8 @@ async function initializeDecoder() {
 initializeDecoder();
 
 
+let highestSpatialLayer = 3, highestTemporalLayer = 3;
+
 async function handleTransform(operation, readable, writable) {
     if (operation === 'encode') {
         await readable
@@ -50,20 +52,24 @@ async function handleTransform(operation, readable, writable) {
     } else if (operation === 'decode') {
         const transformer = new TransformStream({
             async transform(encodedFrame, controller) {
-                const {temporalIndex: temporal, spatialIndex: spatial} = encodedFrame.getMetadata();
+                const {temporalIndex, spatialIndex} = encodedFrame.getMetadata();
+
+                controller.enqueue(encodedFrame);
 
                 let {timestamp, data, type} = encodedFrame;
 
-                // console.log('\nencoded frame', {timestamp, temporal, spatial});
+                if (temporalIndex < highestTemporalLayer && spatialIndex < highestSpatialLayer) {
+                    console.log("Decoding: ", {temporalIndex, spatialIndex})
 
-                const chunk = new EncodedVideoChunk({
-                    timestamp,
-                    data,
-                    type,
-                })
+                    const chunk = new EncodedVideoChunk({
+                        timestamp,
+                        data,
+                        type,
+                    })
 
-                await videoDecoder.decode(chunk);
-                controller.enqueue(encodedFrame);
+                    await videoDecoder.decode(chunk);
+                }
+
             },
         });
         await readable
@@ -78,6 +84,18 @@ onmessage = async ({data}) => {
     if (operation === 'encode' || operation === 'decode') {
         let {readable, writable} = data;
         return await handleTransform(operation, readable, writable);
+    }
+
+    if (operation === 'layer-change') {
+        let {temporal, layer} = data;
+
+        if (temporal) {
+            highestTemporalLayer = layer;
+        } else {
+            highestSpatialLayer = layer;
+        }
+
+        console.log("LAYER CHANGE!", data);
     }
 };
 
