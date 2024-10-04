@@ -7,6 +7,15 @@ const video1 = document.querySelector('video#video1');
 const video2 = document.querySelector('video#video2');
 const video3 = document.querySelector('video#video3');
 
+video2.addEventListener('resize', () => {
+    console.log(`resize: Remote video size changed to ${video2.videoWidth}x${video2.videoHeight}`);
+});
+
+video3.addEventListener('resize', () => {
+    console.log(`resize: Decoder video size changed to ${video3.videoWidth}x${video3.videoHeight}`);
+});
+
+
 const startButton = document.getElementById('startButton');
 const callButton = document.getElementById('callButton');
 const hangupButton = document.getElementById('hangupButton');
@@ -140,13 +149,19 @@ function gotRemoteStream(stream) {
 async function start() {
     console.log('Requesting local stream');
     startButton.disabled = true;
-    const options = {audio: false, video: true};
+    const options = {
+        audio: false,
+        video: {
+            width: 1280,
+            height: 720,
+        }
+    };
     navigator.mediaDevices
         .getUserMedia(options)
         .then(gotStream)
         .catch(function (e) {
             alert('getUserMedia() failed');
-            console.log('getUserMedia() error: ', e);
+            throw new Error(`getUserMedia() error: ${e}`);
         });
 
     try {
@@ -156,8 +171,8 @@ async function start() {
             video: {
                 contentType: "video/av01.0.04M.08",
                 scalabilityMode: "L3T3",
-                width: 1920,
-                height: 1080,
+                width: 1280,
+                height: 720,
                 bitrate: 10000,
                 framerate: 29.97,
             }

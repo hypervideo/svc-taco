@@ -5,6 +5,9 @@
 'use strict';
 
 
+// collect all timestmaps -- see # of timestamps  -> frame
+// print the frame size
+
 const videoDecoder = new VideoDecoder({
     output: (frame) => {
         console.log("Good frame", frame.timestamp, frame);
@@ -36,7 +39,7 @@ async function initializeDecoder() {
             console.error("Configuration is not supported");
         }
     } catch (e) {
-        console.error("Something went wrong when checking if isConfigSupported")
+        throw new Error("Something went wrong when checking if isConfigSupported")
     }
 }
 
@@ -52,11 +55,10 @@ async function handleTransform(operation, readable, writable) {
     } else if (operation === 'decode') {
         const transformer = new TransformStream({
             async transform(encodedFrame, controller) {
-                const {temporalIndex, spatialIndex} = encodedFrame.getMetadata();
+                const {temporalIndex, spatialIndex, width, height} = encodedFrame.getMetadata();
+                const {timestamp, data, type} = encodedFrame;
 
                 controller.enqueue(encodedFrame);
-
-                let {timestamp, data, type} = encodedFrame;
 
                 if (temporalIndex < highestTemporalLayer && spatialIndex < highestSpatialLayer) {
                     console.log("Decoding: ", {temporalIndex, spatialIndex})
@@ -69,7 +71,6 @@ async function handleTransform(operation, readable, writable) {
 
                     await videoDecoder.decode(chunk);
                 }
-
             },
         });
         await readable
