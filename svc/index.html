@@ -10,22 +10,22 @@
 <head>
 
     <meta charset="utf-8">
-    <meta name="description" content="WebRTC code samples">
-    <meta name="viewport" content="width=device-width, user-scalable=yes, initial-scale=1, maximum-scale=1">
-    <meta itemprop="description" content="Client-side WebRTC code samples">
-    <meta itemprop="image" content="../../../images/webrtc-icon-192x192.png">
-    <meta itemprop="name" content="WebRTC code samples">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta id="theme-color" name="theme-color" content="#ffffff">
+    <meta content="WebRTC code samples" name="description">
+    <meta content="width=device-width, user-scalable=yes, initial-scale=1, maximum-scale=1" name="viewport">
+    <meta content="Client-side WebRTC code samples" itemprop="description">
+    <meta content="../../../images/webrtc-icon-192x192.png" itemprop="image">
+    <meta content="WebRTC code samples" itemprop="name">
+    <meta content="yes" name="mobile-web-app-capable">
+    <meta content="#ffffff" id="theme-color" name="theme-color">
 
     <base target="_blank">
 
     <title>Scalable Video Coding (SVC) Extension</title>
 
-    <link rel="icon" sizes="192x192" href="../../../images/webrtc-icon-192x192.png">
+    <link href="../../../images/webrtc-icon-192x192.png" rel="icon" sizes="192x192">
     <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700" rel="stylesheet" type="text/css">
-    <link rel="stylesheet" href="../../../css/main.css"/>
-    <link rel="stylesheet" href="css/main.css"/>
+    <link href="../../../css/main.css" rel="stylesheet"/>
+    <link href="css/main.css" rel="stylesheet"/>
 
 </head>
 
@@ -37,11 +37,12 @@
 
     <p>This sample shows how to setup a connection between two peers using
         <a href="https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection">RTCPeerConnection</a> and
-        choose the preferred video codec to use and scalability mode when the <a href="https://www.w3.org/TR/webrtc-svc/">Scalable Video Coding (SVC) Extension</a> is available.
-</p>
+        choose the preferred video codec to use and scalability mode when the <a
+                href="https://www.w3.org/TR/webrtc-svc/">Scalable Video Coding (SVC) Extension</a> is available.
+    </p>
 
-    <video id="localVideo" playsinline autoplay muted></video>
-    <video id="remoteVideo" playsinline autoplay></video>
+    <video autoplay id="localVideo" muted playsinline></video>
+    <video autoplay id="remoteVideo" playsinline></video>
 
     <div class="box">
         <button id="startButton">Start</button>
@@ -51,12 +52,12 @@
 
     <div class="box">
         <span>Codec preferences:</span>
-        <select id="codecPreferences" disabled>
+        <select disabled id="codecPreferences">
             <option selected value="">Default</option>
         </select>
         <br/>
         <span>Scalability Mode:</span>
-        <select id="scalabilityMode" disabled>
+        <select disabled id="scalabilityMode">
             <option selected value="">NONE</option>
         </select>
         <div id="actualCodec"></div>
@@ -73,13 +74,12 @@
 
 
     <a href="https://github.com/webrtc/samples/tree/gh-pages/src/content/extensions/svc"
-       title="View source for this page on GitHub" id="viewSource">View source on GitHub</a>
+       id="viewSource" title="View source for this page on GitHub">View source on GitHub</a>
 
 </div>
 
 <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
-<script src="js/main.js" async></script>
-<script src="../../../js/third_party/graph.js"></script>
-<script src="../../../js/lib/ga.js"></script>
+<script async src="js/main.js"></script>
+<script src="./graph.js"></script>
 </body>
 </html>
