@@ -131,8 +131,8 @@ async function start() {
             video: {
                 contentType: "video/av01.0.04M.08",
                 scalabilityMode: "L3T3",
-                width: 640,
-                height: 480,
+                width: 1920,
+                height: 1080,
                 bitrate: 10000,
                 framerate: 29.97,
             }
