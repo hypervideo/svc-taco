@@ -13,6 +13,31 @@ const hangupButton = document.getElementById('hangupButton');
 
 const banner = document.querySelector('#banner');
 
+const spatialSelect = document.getElementById('spatial');
+const temporalSelect = document.getElementById('temporal');
+
+spatialSelect.addEventListener('change', (event) => {
+    const spatialLayer = Number(event.target.value);
+    console.log(`Spatial layer changed to: ${spatialLayer}`);
+
+    worker.postMessage({
+        operation: 'layer-change',
+        temporal: false,
+        layer: spatialLayer
+    });
+});
+
+temporalSelect.addEventListener('change', (event) => {
+    const temporalLayer = Number(event.target.value);
+    console.log(`Temporal layer changed to: ${temporalLayer}`);
+
+    worker.postMessage({
+        operation: 'layer-change',
+        temporal: true,
+        layer: temporalLayer
+    });
+});
+
 
 document.addEventListener('keydown', (e) => {
 
@@ -197,6 +222,7 @@ function setupReceiverTransform(receiver) {
 function call() {
     callButton.disabled = true;
     hangupButton.disabled = false;
+
     console.log('Starting call');
 
     setupRemoteStreamTrack();

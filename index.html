@@ -12,7 +12,8 @@
         html, body {
             font-family: "Times New Roman", Times, serif;
             height: 100vh;
-            width: 100vh;
+            width: 100vw;
+            padding: 1px;
         }
 
         video {
@@ -31,7 +32,7 @@
 
         #environment {
             display: flex;
-            width: 100vh;
+            width: 100vw;
         }
 
         #divider {
@@ -43,7 +44,15 @@
 
         #decoder {
             flex-grow: 1;
+        }
+
+        #decoder-svc {
             display: flex;
+            gap: 20px;
+        }
+
+        #decoder-svc:disabled {
+            display: none;
         }
 
     </style>
@@ -87,6 +96,26 @@
         <div>
             <p>Frames Decoded by WebCodec's VideoDecoder</p>
             <video autoplay id="video3" playsinline></video>
+        </div>
+        <div id="decoder-svc">
+            <div>
+                <label for="spatial">Spatial Layer:</label>
+
+                <select id="spatial" name="spatial-layers">
+                    <option value="3">Layer 3</option>
+                    <option value="2">Layer 2</option>
+                    <option value="1">Base Layer</option>
+                </select>
+            </div>
+            <div>
+                <label for="temporal">Temporal Layer:</label>
+
+                <select id="temporal" name="temporal-layers">
+                    <option value="3">Layer 3</option>
+                    <option value="2">Layer 2</option>
+                    <option value="1">Base Layer</option>
+                </select>
+            </div>
         </div>
     </div>
 </div>
