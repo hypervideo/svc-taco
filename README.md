@@ -20,7 +20,7 @@ temporal layers. A video segment with the lowest requirements is encoded as the 
 ### Limited Resources
 
 [hypervideo](https://github.com/hypervideo/hyper.video) uses `VideoEncoder` from the `WebCodec` API.
-However, `VideoEncoder`'s SVC capabilities is quite limited, as it only supports temporal scalability.
+However, `VideoEncoder`'s SVC capabilities are quite limited, as it only supports temporal scalability.
 
 It is well known that WebRTC's video encoder supports both temporal and spatial scalability. WebRTC's most
 aggressive [`scalabilityMode`](https://www.w3.org/TR/webrtc-svc/#scalabilitymodes*) with a 2:1 resolution is `L3T3`.
@@ -42,7 +42,7 @@ decode the encoded video frames.
 ## How to Run
 
 > [!NOTE]  
-> When running the demo, make sure to disable cache!
+> When running the demo locally, make sure to disable cache in your Network tab!
 
 ```sh
 # this assumes you have Golang and Just installed

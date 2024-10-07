@@ -6,7 +6,7 @@
 
 
 let timestampCatalog = new Map();
-let writableTrack;
+let writer;
 
 const videoDecoder = new VideoDecoder({
     output: async (frame) => {
@@ -22,24 +22,22 @@ const videoDecoder = new VideoDecoder({
             visibleRect
         } = frame;
 
-        console.log("Good frame", {timestamp, codedWidth, codedHeight});
+        // // console.log("Good frame", {timestamp, codedWidth, codedHeight});
 
         if (timestampCatalog.has(timestamp)) {
             timestampCatalog.set(timestamp, timestampCatalog.get(timestamp) + 1);
-            console.log(`Duplicate timestamp video frame encountered`);
+            // console.log(`Duplicate timestamp video frame encountered`);
         } else {
             timestampCatalog.set(timestamp, 1);
         }
 
-        const writer = writableTrack.getWriter();
         await writer.write(frame);
-        writer.releaseLock();
     },
     error: (error) => {
         let message = error.message;
         let code = error.name;
 
-        console.error(`Failed to decode: `, message, code);
+        // console.error(`Failed to decode: `, message, code);
     }
 });
 
@@ -54,7 +52,7 @@ async function initializeDecoder() {
         const support = await VideoDecoder.isConfigSupported(config);
 
         if (support.supported) {
-            console.log("Video Decoder configuration is supported:", support.config);
+            // console.log("Video Decoder configuration is supported:", support.config);
             videoDecoder.configure(support.config);
         } else {
             return new Error("Configuration is not supported");
@@ -82,7 +80,7 @@ async function handleTransform(operation, readable, writable) {
                 controller.enqueue(encodedFrame);
 
                 if (temporalIndex < highestTemporalLayer && spatialIndex < highestSpatialLayer) {
-                    console.log("Decoding encodedChunk: ", {timestamp, temporalIndex, spatialIndex})
+                    // console.log("Decoding encodedChunk: ", {timestamp, temporalIndex, spatialIndex})
 
                     const chunk = new EncodedVideoChunk({
                         timestamp,
@@ -105,7 +103,7 @@ onmessage = async ({data}) => {
     let {operation} = data;
 
     if (operation === "init") {
-        writableTrack = data.writable;
+        writer = data.writable.getWriter();
 
         postMessage({
             operation: "track-ready",
@@ -126,7 +124,7 @@ onmessage = async ({data}) => {
             highestSpatialLayer = layer;
         }
 
-        console.log("LAYER CHANGE!", data);
+        // console.log("LAYER CHANGE!", data);
     }
 };
 
