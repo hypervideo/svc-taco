@@ -5,13 +5,11 @@
 'use strict';
 
 
-// collect all timestmaps -- see # of timestamps  -> frame
-// print the frame size
-
 let timestampCatalog = new Map();
+let writableTrack;
 
 const videoDecoder = new VideoDecoder({
-    output: (frame) => {
+    output: async (frame) => {
         let {
             codedHeight,
             codedWidth,
@@ -26,7 +24,6 @@ const videoDecoder = new VideoDecoder({
 
         console.log("Good frame", {timestamp, codedWidth, codedHeight});
 
-
         if (timestampCatalog.has(timestamp)) {
             timestampCatalog.set(timestamp, timestampCatalog.get(timestamp) + 1);
             console.log(`Duplicate timestamp video frame encountered`);
@@ -34,8 +31,9 @@ const videoDecoder = new VideoDecoder({
             timestampCatalog.set(timestamp, 1);
         }
 
-
-        postMessage({operation: "videoframe", frame}, [frame]);
+        const writer = writableTrack.getWriter();
+        await writer.write(frame);
+        writer.releaseLock();
     },
     error: (error) => {
         let message = error.message;
@@ -105,6 +103,15 @@ async function handleTransform(operation, readable, writable) {
 // Handler for messages, including transferable streams.
 onmessage = async ({data}) => {
     let {operation} = data;
+
+    if (operation === "init") {
+        writableTrack = data.writable;
+
+        postMessage({
+            operation: "track-ready",
+        })
+    }
+
     if (operation === 'encode' || operation === 'decode') {
         let {readable, writable} = data;
         return await handleTransform(operation, readable, writable);
