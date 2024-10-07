@@ -126,20 +126,6 @@ function gotStream(stream) {
 }
 
 
-const remoteTrackGenerator = new MediaStreamTrackGenerator({kind: "video"});
-worker.onmessage = async ({data}) => {
-    if (data.frame) {
-        const frame = data.frame;
-        const writer = await remoteTrackGenerator.writable.getWriter();
-        await writer.write(frame);
-        await writer.releaseLock();
-    }
-}
-
-async function setupRemoteStreamTrack() {
-    video3.srcObject = new MediaStream([remoteTrackGenerator]);
-}
-
 function gotRemoteStream(stream) {
     console.log('Received remote stream');
     remoteStream = stream;
@@ -195,19 +181,6 @@ function setupSenderTransform(sender) {
     }
 
     const senderStreams = sender.createEncodedStreams();
-    // Instead of creating the transform stream here, we do a postMessage to the worker. The first
-    // argument is an object defined by us, the second is a list of variables that will be transferred to
-    // the worker. See
-    //   https://developer.mozilla.org/en-US/docs/Web/API/Worker/postMessage
-    // If you want to do the operations on the main thread instead, comment out the code below.
-    /*
-    const transformStream = new TransformStream({
-      transform: encodeFunction,
-    });
-    senderStreams.readable
-        .pipeThrough(transformStream)
-        .pipeTo(senderStreams.writable);
-    */
     const {readable, writable} = senderStreams;
     worker.postMessage({
         operation: 'encode',
@@ -234,13 +207,26 @@ function setupReceiverTransform(receiver) {
     }, [readable, writable]);
 }
 
+
+const mediaStreamTrackGenerator = new MediaStreamTrackGenerator({kind: 'video'});
+const writable = mediaStreamTrackGenerator.writable;
+
+worker.onmessage = ({data}) => {
+    if (data.operation === 'track-ready') {
+        video3.srcObject = new MediaStream([mediaStreamTrackGenerator]);
+    }
+};
+
 function call() {
     callButton.disabled = true;
     hangupButton.disabled = false;
 
     console.log('Starting call');
 
-    setupRemoteStreamTrack();
+
+    worker.postMessage({
+        operation: 'init', writable
+    }, [writable]);
 
     startToEnd = new VideoPipe(localStream, true, true, e => {
         setupReceiverTransform(e.receiver);
