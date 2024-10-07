@@ -77,7 +77,7 @@ async function handleTransform(operation, readable, writable) {
                 const {temporalIndex, spatialIndex, width, height} = encodedFrame.getMetadata();
                 const {timestamp, data, type} = encodedFrame;
 
-                controller.enqueue(encodedFrame);
+                // controller.enqueue(encodedFrame);
 
                 if (temporalIndex < highestTemporalLayer && spatialIndex < highestSpatialLayer) {
                     // console.log("Decoding encodedChunk: ", {timestamp, temporalIndex, spatialIndex})
