@@ -6,7 +6,7 @@
 
 
 let timestampCatalog = new Map();
-let writableTrack;
+let writer;
 
 const videoDecoder = new VideoDecoder({
     output: async (frame) => {
@@ -31,9 +31,7 @@ const videoDecoder = new VideoDecoder({
             timestampCatalog.set(timestamp, 1);
         }
 
-        const writer = writableTrack.getWriter();
         await writer.write(frame);
-        writer.releaseLock();
     },
     error: (error) => {
         let message = error.message;
@@ -105,7 +103,7 @@ onmessage = async ({data}) => {
     let {operation} = data;
 
     if (operation === "init") {
-        writableTrack = data.writable;
+        writer = data.writable.getWriter();
 
         postMessage({
             operation: "track-ready",

@@ -211,6 +211,10 @@ function setupReceiverTransform(receiver) {
 const mediaStreamTrackGenerator = new MediaStreamTrackGenerator({kind: 'video'});
 const writable = mediaStreamTrackGenerator.writable;
 
+worker.postMessage({
+    operation: 'init', writable
+}, [writable]);
+
 worker.onmessage = ({data}) => {
     if (data.operation === 'track-ready') {
         video3.srcObject = new MediaStream([mediaStreamTrackGenerator]);
@@ -223,10 +227,6 @@ function call() {
 
     console.log('Starting call');
 
-
-    worker.postMessage({
-        operation: 'init', writable
-    }, [writable]);
 
     startToEnd = new VideoPipe(localStream, true, true, e => {
         setupReceiverTransform(e.receiver);
