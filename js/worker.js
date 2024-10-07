@@ -22,7 +22,7 @@ const videoDecoder = new VideoDecoder({
             visibleRect
         } = frame;
 
-        console.log("Good frame", {timestamp, codedWidth, codedHeight});
+        // console.log("Good frame", {timestamp, codedWidth, codedHeight});
 
         if (timestampCatalog.has(timestamp)) {
             timestampCatalog.set(timestamp, timestampCatalog.get(timestamp) + 1);

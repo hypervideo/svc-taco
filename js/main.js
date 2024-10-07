@@ -8,11 +8,11 @@ const video2 = document.querySelector('video#video2');
 const video3 = document.querySelector('video#video3');
 
 video2.addEventListener('resize', () => {
-    console.log(`resize: Remote video size changed to ${video2.videoWidth}x${video2.videoHeight}`);
+    // console.log(`resize: Remote video size changed to ${video2.videoWidth}x${video2.videoHeight}`);
 });
 
 video3.addEventListener('resize', () => {
-    console.log(`resize: Decoder video size changed to ${video3.videoWidth}x${video3.videoHeight}`);
+    // console.log(`resize: Decoder video size changed to ${video3.videoWidth}x${video3.videoHeight}`);
 });
 
 
@@ -27,7 +27,7 @@ const temporalSelect = document.getElementById('temporal');
 
 spatialSelect.addEventListener('change', (event) => {
     const spatialLayer = Number(event.target.value);
-    console.log(`Spatial layer changed to: ${spatialLayer}`);
+    // console.log(`Spatial layer changed to: ${spatialLayer}`);
 
     worker.postMessage({
         operation: 'layer-change',
@@ -38,7 +38,7 @@ spatialSelect.addEventListener('change', (event) => {
 
 temporalSelect.addEventListener('change', (event) => {
     const temporalLayer = Number(event.target.value);
-    console.log(`Temporal layer changed to: ${temporalLayer}`);
+    // console.log(`Temporal layer changed to: ${temporalLayer}`);
 
     worker.postMessage({
         operation: 'layer-change',
@@ -104,7 +104,7 @@ if (!hasEnoughAPIs) {
         window.postMessage(stream, '*', [stream]);
         supportsTransferableStreams = true;
     } catch (e) {
-        console.error('Transferable streams are not supported.');
+        // console.error('Transferable streams are not supported.');
     }
     hasEnoughAPIs = supportsInsertableStreams && supportsTransferableStreams;
 }
@@ -119,7 +119,7 @@ if (!hasEnoughAPIs) {
 }
 
 function gotStream(stream) {
-    console.log('Received local stream');
+    // console.log('Received local stream');
     video1.srcObject = stream;
     localStream = stream;
     callButton.disabled = false;
@@ -127,13 +127,13 @@ function gotStream(stream) {
 
 
 function gotRemoteStream(stream) {
-    console.log('Received remote stream');
+    // console.log('Received remote stream');
     remoteStream = stream;
     video2.srcObject = stream;
 }
 
 async function start() {
-    console.log('Requesting local stream');
+    // console.log('Requesting local stream');
     startButton.disabled = true;
     const options = {
         audio: false,
@@ -166,7 +166,7 @@ async function start() {
 
         await navigator.mediaCapabilities.encodingInfo(config);
 
-        console.log("encoding info: ", config);
+        // console.log("encoding info: ", config);
     } catch (e) {
         throw new Error(`Failed to configure WebRTC: ${e}`);
     }
@@ -198,7 +198,7 @@ function setupReceiverTransform(receiver) {
     // not a lot of documentation on this
     // https://developer.mozilla.org/en-US/docs/Web/API/RTCRtpReceiver and grep for `createEncodedStreams()`
     const receiverStreams = receiver.createEncodedStreams();
-    console.log(`receiverStreams`, receiverStreams);
+    // console.log(`receiverStreams`, receiverStreams);
     const {readable, writable} = receiverStreams;
     worker.postMessage({
         operation: 'decode',
@@ -225,7 +225,7 @@ function call() {
     callButton.disabled = true;
     hangupButton.disabled = false;
 
-    console.log('Starting call');
+    // console.log('Starting call');
 
 
     startToEnd = new VideoPipe(localStream, true, true, e => {
@@ -240,11 +240,11 @@ function call() {
     startToEnd.pc1.getSenders().forEach(setupSenderTransform);
     startToEnd.negotiate();
 
-    console.log('Video pipes created');
+    // console.log('Video pipes created');
 }
 
 function hangup() {
-    console.log('Ending call');
+    // console.log('Ending call');
     startToEnd.close();
     hangupButton.disabled = true;
     callButton.disabled = false;
