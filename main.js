@@ -86,7 +86,7 @@ let remoteStream;
 // See
 //   https://developer.mozilla.org/en-US/docs/Web/API/Worker
 // for basic concepts.
-const worker = new Worker('./js/worker.js', {name: 'E2EE worker', type: "module"});
+const worker = new Worker('worker.js', {name: 'E2EE worker', type: "module"});
 
 
 const supportsSetCodecPreferences = window.RTCRtpTransceiver &&
