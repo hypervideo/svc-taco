@@ -222,7 +222,7 @@ worker.onmessage = ({data}) => {
     }
 };
 
-function call() {
+async function call() {
     callButton.disabled = true;
     hangupButton.disabled = false;
 
@@ -241,7 +241,6 @@ function call() {
     startToEnd.pc1.getSenders().forEach(setupSenderTransform);
     startToEnd.negotiate();
 
-    interceptVideoFrames(video1).catch((e) => console.error("Error: ", e));
 
     // console.log('Video pipes created');
 }
@@ -252,37 +251,4 @@ function hangup() {
     hangupButton.disabled = true;
     callButton.disabled = false;
 }
-
-// Below, we grab four video frames, and encode
-
-async function interceptVideoFrames(videoElement) {
-    const stream = videoElement.captureStream();
-    const [videoTrack] = stream.getVideoTracks();
-
-    if (!videoTrack) {
-        throw new Error("Failed to grab actual video track");
-    }
-
-    const processor = new MediaStreamTrackProcessor({track: videoTrack});
-    const reader = processor.readable.getReader();
-
-    for (let idx = 0; idx < 4; idx++) {
-        const {value: frame, done} = await reader.read();
-
-        if (done) {
-            throw new Error("No more frames available");
-        }
-
-        const planeData = new Uint8Array(frame.allocationSize());
-        await frame.copyTo(planeData);
-
-        console.log(`Frame ${idx}: ${planeData}`);
-
-
-        frame.close();
-    }
-}
-
-
-
 
