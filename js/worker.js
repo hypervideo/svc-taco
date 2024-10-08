@@ -67,9 +67,41 @@ initializeDecoder();
 
 let highestSpatialLayer = 3, highestTemporalLayer = 3;
 
+
+const encoded = new Map();
+
+
 async function handleTransform(operation, readable, writable) {
     if (operation === 'encode') {
+        const transformer = new TransformStream({
+            async transform(encodedFrame, controller) {
+                const {temporalIndex, spatialIndex, width, height} = encodedFrame.getMetadata();
+                const {timestamp, data, type} = encodedFrame;
+
+                if (encoded.has(timestamp)) {
+                    const layers = encoded.get(timestamp);
+                    layers.push({
+                        spatialIndex,
+                        temporalIndex,
+                        size: data.byteLength
+                    });
+
+                    encoded.set(timestamp, layers);
+
+                } else {
+                    encoded.set(timestamp, [{
+                        spatialIndex,
+                        temporalIndex,
+                        size: data.byteLength
+                    }]);
+                }
+
+                controller.enqueue(encodedFrame);
+            }
+        })
+
         await readable
+            .pipeThrough(transformer)
             .pipeTo(writable);
     } else if (operation === 'decode') {
         const transformer = new TransformStream({
@@ -90,6 +122,8 @@ async function handleTransform(operation, readable, writable) {
 
                     await videoDecoder.decode(chunk);
                 }
+
+                console.log(`Encoded catalog: `, encoded);
             },
         });
         await readable
