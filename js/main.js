@@ -3,29 +3,53 @@
 /* global RTCRtpScriptTransform */
 /* global VideoPipe */
 
-const canvas = document.querySelector('canvas');
-const ctx = canvas.getContext('2d');
-
-const image = new Image();
-image.src = "potatoe.webp";
-
-let canvasStream;
-
-image.onload = function () {
-    ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
-    canvasStream = canvas.captureStream(25);
-    console.log("Canvas stream captured")
-}
-
+const video1 = document.querySelector('video#video1');
 const video2 = document.querySelector('video#video2');
+const video3 = document.querySelector('video#video3');
+
+video2.addEventListener('resize', () => {
+    // console.log(`resize: Remote video size changed to ${video2.videoWidth}x${video2.videoHeight}`);
+});
+
+video3.addEventListener('resize', () => {
+    // console.log(`resize: Decoder video size changed to ${video3.videoWidth}x${video3.videoHeight}`);
+});
 
 
 const startButton = document.getElementById('startButton');
 const callButton = document.getElementById('callButton');
 const hangupButton = document.getElementById('hangupButton');
 
+const banner = document.querySelector('#banner');
+
+const spatialSelect = document.getElementById('spatial');
+const temporalSelect = document.getElementById('temporal');
+
+spatialSelect.addEventListener('change', (event) => {
+    const spatialLayer = Number(event.target.value);
+    // console.log(`Spatial layer changed to: ${spatialLayer}`);
+
+    worker.postMessage({
+        operation: 'layer-change',
+        temporal: false,
+        layer: spatialLayer
+    });
+});
+
+temporalSelect.addEventListener('change', (event) => {
+    const temporalLayer = Number(event.target.value);
+    // console.log(`Temporal layer changed to: ${temporalLayer}`);
+
+    worker.postMessage({
+        operation: 'layer-change',
+        temporal: true,
+        layer: temporalLayer
+    });
+});
+
 
 document.addEventListener('keydown', (e) => {
+
     switch (e.key) {
         case "1": {
             e.preventDefault();
@@ -62,7 +86,7 @@ let remoteStream;
 // See
 //   https://developer.mozilla.org/en-US/docs/Web/API/Worker
 // for basic concepts.
-const worker = new Worker('worker.js', {name: 'E2EE worker', type: "module"});
+const worker = new Worker('js/worker.js', {name: 'E2EE worker', type: "module"});
 
 
 const supportsSetCodecPreferences = window.RTCRtpTransceiver &&
@@ -80,31 +104,54 @@ if (!hasEnoughAPIs) {
         window.postMessage(stream, '*', [stream]);
         supportsTransferableStreams = true;
     } catch (e) {
-        console.error('Transferable streams are not supported.');
+        // console.error('Transferable streams are not supported.');
     }
     hasEnoughAPIs = supportsInsertableStreams && supportsTransferableStreams;
 }
 
+if (!hasEnoughAPIs) {
+    banner.innerText = 'Your browser does not support WebRTC Encoded Transforms. ' +
+        'This sample will not work.';
+    if (adapter.browserDetails.browser === 'chrome') {
+        banner.innerText += ' Try with Enable experimental Web Platform features enabled from chrome://flags.';
+    }
+    startButton.disabled = true;
+}
+
+function gotStream(stream) {
+    // console.log('Received local stream');
+    video1.srcObject = stream;
+    localStream = stream;
+    callButton.disabled = false;
+}
+
 
 function gotRemoteStream(stream) {
-    console.log('Received remote stream');
+    // console.log('Received remote stream');
     remoteStream = stream;
     video2.srcObject = stream;
-
-    console.log("Remote stream tracks:", stream.getTracks());
-
-    video2.play().catch((e) => console.error("Error playing video: ", e));
 }
 
 async function start() {
-    console.log('Requesting local stream');
+    // console.log('Requesting local stream');
     startButton.disabled = true;
-
-    localStream = canvasStream;
-    console.log("Canvas stream tracks:", canvasStream.getTracks());
-    callButton.disabled = false;
+    const options = {
+        audio: false,
+        video: {
+            width: 1280,
+            height: 720,
+        }
+    };
+    navigator.mediaDevices
+        .getUserMedia(options)
+        .then(gotStream)
+        .catch(function (e) {
+            alert('getUserMedia() failed');
+            throw new Error(`getUserMedia() error: ${e}`);
+        });
 
     try {
+
         let config = {
             type: "webrtc",
             video: {
@@ -118,7 +165,8 @@ async function start() {
         }
 
         await navigator.mediaCapabilities.encodingInfo(config);
-        console.log("encoding info: ", config);
+
+        // console.log("encoding info: ", config);
     } catch (e) {
         throw new Error(`Failed to configure WebRTC: ${e}`);
     }
@@ -134,7 +182,6 @@ function setupSenderTransform(sender) {
 
     const senderStreams = sender.createEncodedStreams();
     const {readable, writable} = senderStreams;
-    console.log(`readable: ${readable}, writable: ${writable}`);
     worker.postMessage({
         operation: 'encode',
         readable,
@@ -151,7 +198,7 @@ function setupReceiverTransform(receiver) {
     // not a lot of documentation on this
     // https://developer.mozilla.org/en-US/docs/Web/API/RTCRtpReceiver and grep for `createEncodedStreams()`
     const receiverStreams = receiver.createEncodedStreams();
-    console.log(`receiverStreams`, receiverStreams);
+    // console.log(`receiverStreams`, receiverStreams);
     const {readable, writable} = receiverStreams;
     worker.postMessage({
         operation: 'decode',
@@ -161,11 +208,25 @@ function setupReceiverTransform(receiver) {
 }
 
 
+const mediaStreamTrackGenerator = new MediaStreamTrackGenerator({kind: 'video'});
+const writable = mediaStreamTrackGenerator.writable;
+
+worker.postMessage({
+    operation: 'init', writable
+}, [writable]);
+
+worker.onmessage = ({data}) => {
+    if (data.operation === 'track-ready') {
+        video3.srcObject = new MediaStream([mediaStreamTrackGenerator]);
+    }
+};
+
 function call() {
     callButton.disabled = true;
     hangupButton.disabled = false;
 
-    console.log('Starting call');
+    // console.log('Starting call');
+
 
     startToEnd = new VideoPipe(localStream, true, true, e => {
         setupReceiverTransform(e.receiver);
@@ -174,18 +235,16 @@ function call() {
             throw new Error(`Codec is not supported`);
         }
 
-        console.log("remote stream", e.streams[0]);
-
         gotRemoteStream(e.streams[0]);
     });
     startToEnd.pc1.getSenders().forEach(setupSenderTransform);
     startToEnd.negotiate();
 
-    console.log('Video pipes created');
+    // console.log('Video pipes created');
 }
 
 function hangup() {
-    console.log('Ending call');
+    // console.log('Ending call');
     startToEnd.close();
     hangupButton.disabled = true;
     callButton.disabled = false;
