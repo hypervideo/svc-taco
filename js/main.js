@@ -224,8 +224,8 @@ worker.onmessage = ({ data }) => {
         video3.srcObject = new MediaStream([mediaStreamTrackGenerator]);
     }
 
-    if (data.operation === 'encoded-frame') {
-        const { layered, timestamp, spatialIndex, temporalIndex, size, type } = data;
+    if (data.operation === "encoded-frame") {
+        const {layered, timestamp, spatialIndex, temporalIndex, size, type, frameData} = data;
 
         let frameMap = layered ? encodedL3T3Frames : encodedS3T3Frames;
 
@@ -236,56 +236,77 @@ worker.onmessage = ({ data }) => {
                 temporalIndex,
                 size,
                 type,
+                frameData,
             });
 
             frameMap.set(timestamp, layers);
             updateEncodedFrame(timestamp, layers, layered);
         } else {
-            frameMap.set(timestamp, [
-                {
-                    spatialIndex,
-                    temporalIndex,
-                    size,
-                    type,
-                },
-            ]);
+            frameMap.set(timestamp, [{
+                spatialIndex,
+                temporalIndex,
+                size,
+                type,
+                frameData,
+            }]);
 
-            appendEncodedFrame(
-                timestamp,
-                [
-                    {
-                        spatialIndex,
-                        temporalIndex,
-                        size,
-                        type,
-                    },
-                ],
-                layered,
-            );
+            appendEncodedFrame(timestamp, [{
+                spatialIndex,
+                temporalIndex,
+                size,
+                type,
+                frameData
+            }], layered)
         }
     }
 };
 
+const bytesS3T3 = document.getElementById("s3t3-frame-bytes");
+const bytesL3T3 = document.getElementById("l3t3-frame-bytes");
+
 function updateEncodedFrame(timestamp, frames, layered) {
     const entry = document.querySelector(`#entry-${layered}-${timestamp} ul`);
     if (entry) {
-        entry.innerHTML = frames
-            .map(
-                (f) => `
-            <li style="padding: 2px; background-color: ${f.type === 'delta' ? 'yellow' : 'lawngreen'};">
-                <p>${JSON.stringify(
-                    {
-                        spatialIndex: f.spatialIndex,
-                        temporalIndex: f.temporalIndex,
-                        size: f.size,
-                    },
-                    null,
-                    2,
-                )}</p>
-            </li>
-        `,
-            )
-            .join('');
+        let bytes = layered ? bytesL3T3 : bytesS3T3;
+
+        entry.innerHTML = "";
+
+        frames.forEach(({spatialIndex, temporalIndex, size, type, frameData}) => {
+            const li = document.createElement('li');
+            li.style.padding = '2px';
+            li.style.backgroundColor = type === 'delta' ? 'yellow' : 'lawngreen';
+
+            const p = document.createElement('p');
+            p.textContent = JSON.stringify({
+                spatialIndex,
+                temporalIndex,
+                size,
+            }, null, 2);
+
+            li.appendChild(p);
+            li.addEventListener('click', (e) => {
+                e.preventDefault();
+
+                const byteArray = new Uint8Array(frameData);
+
+                let byteStr = '';
+
+                for (let idx = 0; idx < byteArray.length; idx++) {
+                    byteStr += byteArray[idx].toString(16).padStart(2, '0') + ' ';
+                }
+
+
+                bytes.innerHTML = `
+                    <div style="padding-bottom: 8px;">
+                        ${timestamp}, spatial index: ${spatialIndex}, temporal index: ${temporalIndex} 
+                    </div>
+                    <div>${byteStr}</div>   
+                `;
+            });
+
+
+            entry.appendChild(li);
+        });
     }
 }
 

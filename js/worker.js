@@ -80,7 +80,7 @@ async function handleTransform(operation, readable, writable) {
                     timestamp,
                     spatialIndex,
                     temporalIndex,
-                    data,
+                    frameData: data,
                     size,
                     type,
                 });
@@ -98,15 +98,13 @@ async function handleTransform(operation, readable, writable) {
 
                 const size = data.byteLength;
 
-                console.log(`${spatialIndex}, ${temporalIndex}`);
-
                 postMessage({
                     operation: 'encoded-frame',
                     layered: false,
                     timestamp,
                     spatialIndex,
                     temporalIndex,
-                    data,
+                    frameData: data,
                     size,
                     type,
                 });
