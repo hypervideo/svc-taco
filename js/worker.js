@@ -83,6 +83,7 @@ async function handleTransform(operation, readable, writable) {
                     timestamp,
                     spatialIndex,
                     temporalIndex,
+                    data,
                     size,
                     type,
                 });
@@ -111,6 +112,7 @@ async function handleTransform(operation, readable, writable) {
                     timestamp,
                     spatialIndex,
                     temporalIndex,
+                    data,
                     size,
                     type,
                 });
