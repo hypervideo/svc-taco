@@ -273,7 +273,6 @@ function updateEncodedFrame(timestamp, frames, layered) {
             .map(
                 (f) => `
             <li style="padding: 2px; background-color: ${f.type === 'delta' ? 'yellow' : 'lawngreen'};">
-             
                 <p>${JSON.stringify(
                     {
                         spatialIndex: f.spatialIndex,
@@ -282,8 +281,8 @@ function updateEncodedFrame(timestamp, frames, layered) {
                     },
                     null,
                     2,
-                )}</p> 
-            </li> 
+                )}</p>
+            </li>
         `,
             )
             .join('');
@@ -296,24 +295,24 @@ function appendEncodedFrame(timestamp, frames, layered) {
     frameEntry.setAttribute('id', `entry-${layered}-${timestamp}`);
     frameEntry.innerHTML = `
             <div><strong>Timestamp ${timestamp}:</strong></div>
-        <ul>
-            ${frames
-                .map(
-                    (f) => `
-                <li style="background-color: ${f.type === 'delta' ? 'yellow' : 'lawngreen'};">
-                     <p>${JSON.stringify(
-                         {
-                             spatialIndex: f.spatialIndex,
-                             temporalIndex: f.temporalIndex,
-                             size: f.size,
-                         },
-                         null,
-                         2,
-                     )}</p> 
-                </li>
-            `,
-                )
-                .join('')}
+              <ul>
+                  ${frames
+                      .map(
+                          (f) => `
+                      <li style="background-color: ${f.type === 'delta' ? 'yellow' : 'lawngreen'};">
+                           <p>${JSON.stringify(
+                               {
+                                   spatialIndex: f.spatialIndex,
+                                   temporalIndex: f.temporalIndex,
+                                   size: f.size,
+                               },
+                               null,
+                               2,
+                           )}</p>
+                      </li>
+                  `,
+                      )
+                      .join('')}
         </ul>
     `;
 
