@@ -16,6 +16,7 @@
               just
               nodePackages.prettier
               fd
+              nodejs
             ];
           };
         }
