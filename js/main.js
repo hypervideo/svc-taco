@@ -224,8 +224,8 @@ worker.onmessage = ({ data }) => {
         video3.srcObject = new MediaStream([mediaStreamTrackGenerator]);
     }
 
-    if (data.operation === "encoded-frame") {
-        const {layered, timestamp, spatialIndex, temporalIndex, size, type, frameData} = data;
+    if (data.operation === 'encoded-frame') {
+        const { layered, timestamp, spatialIndex, temporalIndex, size, type, frameData } = data;
 
         let frameMap = layered ? encodedL3T3Frames : encodedS3T3Frames;
 
@@ -242,46 +242,58 @@ worker.onmessage = ({ data }) => {
             frameMap.set(timestamp, layers);
             updateEncodedFrame(timestamp, layers, layered);
         } else {
-            frameMap.set(timestamp, [{
-                spatialIndex,
-                temporalIndex,
-                size,
-                type,
-                frameData,
-            }]);
+            frameMap.set(timestamp, [
+                {
+                    spatialIndex,
+                    temporalIndex,
+                    size,
+                    type,
+                    frameData,
+                },
+            ]);
 
-            appendEncodedFrame(timestamp, [{
-                spatialIndex,
-                temporalIndex,
-                size,
-                type,
-                frameData
-            }], layered)
+            appendEncodedFrame(
+                timestamp,
+                [
+                    {
+                        spatialIndex,
+                        temporalIndex,
+                        size,
+                        type,
+                        frameData,
+                    },
+                ],
+                layered,
+            );
         }
     }
 };
 
-const bytesS3T3 = document.getElementById("s3t3-frame-bytes");
-const bytesL3T3 = document.getElementById("l3t3-frame-bytes");
+const bytesS3T3 = document.getElementById('s3t3-frame-bytes');
+const bytesL3T3 = document.getElementById('l3t3-frame-bytes');
 
 function updateEncodedFrame(timestamp, frames, layered) {
     const entry = document.querySelector(`#entry-${layered}-${timestamp} ul`);
     if (entry) {
         let bytes = layered ? bytesL3T3 : bytesS3T3;
 
-        entry.innerHTML = "";
+        entry.innerHTML = '';
 
-        frames.forEach(({spatialIndex, temporalIndex, size, type, frameData}) => {
+        frames.forEach(({ spatialIndex, temporalIndex, size, type, frameData }) => {
             const li = document.createElement('li');
             li.style.padding = '2px';
             li.style.backgroundColor = type === 'delta' ? 'yellow' : 'lawngreen';
 
             const p = document.createElement('p');
-            p.textContent = JSON.stringify({
-                spatialIndex,
-                temporalIndex,
-                size,
-            }, null, 2);
+            p.textContent = JSON.stringify(
+                {
+                    spatialIndex,
+                    temporalIndex,
+                    size,
+                },
+                null,
+                2,
+            );
 
             li.appendChild(p);
             li.addEventListener('click', (e) => {
@@ -295,7 +307,6 @@ function updateEncodedFrame(timestamp, frames, layered) {
                     byteStr += byteArray[idx].toString(16).padStart(2, '0') + ' ';
                 }
 
-
                 bytes.innerHTML = `
                     <div style="padding-bottom: 8px;">
                         ${timestamp}, spatial index: ${spatialIndex}, temporal index: ${temporalIndex} 
@@ -303,7 +314,6 @@ function updateEncodedFrame(timestamp, frames, layered) {
                     <div>${byteStr}</div>   
                 `;
             });
-
 
             entry.appendChild(li);
         });
