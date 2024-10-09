@@ -111,7 +111,7 @@
         </div>
         <div>WebRTC Receiver (Remote Peer)</div>
         <video autoplay id="video2" playsinline></video>
-        <video autoplay id="video2a" playsinline></video>
+        <video autoplay id="video2a" playsinline style="display: none;"></video>
     </div>
     <div>
         <div class="video-header">
@@ -142,14 +142,22 @@
         video elements.
     </p>
 
-    <div>
+    <div style="display: flex;">
         <div>
-            <p>L3T3 Encoded Frames</p>
+            <div>
+                <p>L3T3 Encoded Frames</p>
+            </div>
+            <div id="l3t3-entries">
+            </div>
         </div>
-        <div id="l3t3-entries">
+        <div>
+            <div>
+                <p>S3T3 Encoded Frames</p>
+            </div>
+            <div id="s3t3-entries">
+            </div>
         </div>
     </div>
-
 </div>
 
 <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>

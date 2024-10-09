@@ -78,6 +78,7 @@ hangupButton.onclick = hangup;
 
 
 let startToEnd;
+let secondaryStartToEnd; // this is S3T3
 
 let localStream;
 // eslint-disable-next-line no-unused-vars
@@ -127,10 +128,10 @@ function gotStream(stream) {
 }
 
 
-function gotRemoteStream(stream) {
+function gotRemoteStream(stream, videoElement) {
     // console.log('Received remote stream');
     remoteStream = stream;
-    video2.srcObject = stream;
+    videoElement.srcObject = stream;
 }
 
 async function start() {
@@ -157,7 +158,7 @@ async function start() {
             type: "webrtc",
             video: {
                 contentType: "video/av01.0.04M.08",
-                scalabilityMode: "L3T3",
+                scalabilityMode: "S3T3",
                 width: 1280,
                 height: 720,
                 bitrate: 10000,
@@ -176,7 +177,7 @@ async function start() {
 
 
 // Here we want to decode the encoded video chunk
-function setupSenderTransform(sender) {
+function setupSenderTransform(sender, layered) {
     if (window.RTCRtpScriptTransform) {
         sender.transform = new RTCRtpScriptTransform(worker, {operation: 'encode'});
         return;
@@ -185,13 +186,14 @@ function setupSenderTransform(sender) {
     const senderStreams = sender.createEncodedStreams();
     const {readable, writable} = senderStreams;
     worker.postMessage({
-        operation: 'encode',
+        operation: `encode-layered-${layered}`,
         readable,
         writable,
     }, [readable, writable]);
 }
 
-function setupReceiverTransform(receiver) {
+
+function setupReceiverTransform(receiver, layered) {
     if (window.RTCRtpScriptTransform) {
         receiver.transform = new RTCRtpScriptTransform(worker, {operation: 'decode'});
         return;
@@ -203,7 +205,7 @@ function setupReceiverTransform(receiver) {
     // console.log(`receiverStreams`, receiverStreams);
     const {readable, writable} = receiverStreams;
     worker.postMessage({
-        operation: 'decode',
+        operation: `decode-layered-${layered}`,
         readable,
         writable,
     }, [readable, writable]);
@@ -218,6 +220,7 @@ worker.postMessage({
 }, [writable]);
 
 const encodedL3T3Frames = new Map();
+const encodedS3T3Frames = new Map();
 
 worker.onmessage = ({data}) => {
     if (data.operation === 'track-ready') {
@@ -225,10 +228,12 @@ worker.onmessage = ({data}) => {
     }
 
     if (data.operation === "encoded-frame") {
-        const {timestamp, spatialIndex, temporalIndex, size, type} = data;
+        const {layered, timestamp, spatialIndex, temporalIndex, size, type} = data;
 
-        if (encodedL3T3Frames.has(timestamp)) {
-            const layers = encodedL3T3Frames.get(timestamp);
+        let frameMap = layered ? encodedL3T3Frames : encodedS3T3Frames;
+
+        if (frameMap.has(timestamp)) {
+            const layers = frameMap.get(timestamp);
             layers.push({
                 spatialIndex,
                 temporalIndex,
@@ -236,11 +241,11 @@ worker.onmessage = ({data}) => {
                 type,
             });
 
-            encodedL3T3Frames.set(timestamp, layers);
-            updateEncodedFrame(timestamp, layers);
+            frameMap.set(timestamp, layers);
+            updateEncodedFrame(timestamp, layers, layered);
 
         } else {
-            encodedL3T3Frames.set(timestamp, [{
+            frameMap.set(timestamp, [{
                 spatialIndex,
                 temporalIndex,
                 size,
@@ -251,14 +256,14 @@ worker.onmessage = ({data}) => {
                 spatialIndex,
                 temporalIndex,
                 size,
-                type
-            }])
+                type,
+            }], layered)
         }
     }
 };
 
-function updateEncodedFrame(timestamp, frames) {
-    const entry = document.querySelector(`#entry-${timestamp} ul`);
+function updateEncodedFrame(timestamp, frames, layered) {
+    const entry = document.querySelector(`#entry-${layered}-${timestamp} ul`);
     if (entry) {
         entry.innerHTML = frames.map(f => `
             <li style="padding: 2px; background-color: ${f.type === 'delta' ? 'yellow' : 'lawngreen'};">
@@ -273,10 +278,10 @@ function updateEncodedFrame(timestamp, frames) {
     }
 }
 
-function appendEncodedFrame(timestamp, frames) {
-    const container = document.getElementById('l3t3-entries');
+function appendEncodedFrame(timestamp, frames, layered) {
+    const container = document.getElementById(layered ? 'l3t3-entries' : 's3t3-entries');
     const frameEntry = document.createElement('div');
-    frameEntry.setAttribute('id', `entry-${timestamp}`);
+    frameEntry.setAttribute('id', `entry-${layered}-${timestamp}`);
     frameEntry.innerHTML = `
             <div><strong>Timestamp ${timestamp}:</strong></div>
         <ul>
@@ -299,20 +304,29 @@ async function call() {
     callButton.disabled = true;
     hangupButton.disabled = false;
 
-    // console.log('Starting call');
-
-
     startToEnd = new VideoPipe(localStream, true, true, e => {
-        setupReceiverTransform(e.receiver);
+        setupReceiverTransform(e.receiver, true);
 
         if (!supportsSetCodecPreferences) {
             throw new Error(`Codec is not supported`);
         }
 
-        gotRemoteStream(e.streams[0]);
-    });
-    startToEnd.pc1.getSenders().forEach(setupSenderTransform);
-    startToEnd.negotiate();
+        gotRemoteStream(e.streams[0], video2);
+    }, 'L3T3');
+    startToEnd.pc1.getSenders().forEach(s => setupSenderTransform(s, true));
+    await startToEnd.negotiate();
+
+    secondaryStartToEnd = new VideoPipe(localStream, true, true, e => {
+        setupReceiverTransform(e.receiver, false);
+
+        if (!supportsSetCodecPreferences) {
+            throw new Error(`Codec is not supported`);
+        }
+
+        gotRemoteStream(e.streams[0], video2a);
+    }, 'S3T3');
+    secondaryStartToEnd.pc1.getSenders().forEach(s => setupSenderTransform(s, false));
+    await secondaryStartToEnd.negotiate();
 
 
     // console.log('Video pipes created');
@@ -323,6 +337,7 @@ function hangup() {
 
     console.log(encodedL3T3Frames);
     startToEnd.close();
+    secondaryStartToEnd.close();
     hangupButton.disabled = true;
     callButton.disabled = false;
 }
