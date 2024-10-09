@@ -21,7 +21,7 @@
 //
 'use strict';
 
-function VideoPipe(stream, forceSend, forceReceive, handler) {
+function VideoPipe(stream, forceSend, forceReceive, handler, scalabilityMode) {
     this.pc1 = new RTCPeerConnection({
         encodedInsertableStreams: forceSend,
     });
@@ -38,7 +38,7 @@ function VideoPipe(stream, forceSend, forceReceive, handler) {
             let tr = this.pc1.addTransceiver(track, {
                 streams: [stream],
                 sendEncodings: [
-                    {scalabilityMode: "L3T3"}
+                    {scalabilityMode: scalabilityMode}
                 ]
             });
 

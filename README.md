@@ -6,8 +6,8 @@ This repository aims to investigate whether WebCodec's `VideoDecoder` can decode
 
 ### Scalable Video Coding (SVC)
 
-Adaptive video streaming is the ability to adapt the video quality to the user's network conditions. Simulcast allows
-for adaptive video streaming by independently encoding different versions of a video segment. However, this leads to an
+Adaptive video streaming is the ability to adapt the video quality to the user's network conditions. Simulcast does this
+by independently encoding different versions of a video segment. However, this leads to an
 increased storage penalty due to the redundancy.
 
 SVC reduces this redundancy by encoding a video segment into multiple different spatial and
