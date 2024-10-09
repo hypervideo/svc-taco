@@ -2,18 +2,18 @@ package main
 
 import (
 	"log"
-    "net/http"
-    "os"
+	"net/http"
+	"os"
 )
 
 func main() {
 	wd, err := os.Getwd()
-    if err != nil {
-        log.Fatal(err)
-    }
+	if err != nil {
+		log.Fatal(err)
+	}
 
-  	fs := http.FileServer(http.Dir(wd))
-  	http.Handle("/", fs)
+	fs := http.FileServer(http.Dir(wd))
+	http.Handle("/", fs)
 
 	port := "8080"
 	log.Printf("Listening on http://localhost:%s/", port)
