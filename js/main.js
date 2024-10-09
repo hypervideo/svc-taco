@@ -300,7 +300,12 @@ function updateEncodedFrame(timestamp, frames, layered) {
                 }
 
 
-                bytes.innerHTML = byteStr;
+                bytes.innerHTML = `
+                    <div style="padding-bottom: 8px;">
+                        ${timestamp}, spatial index: ${spatialIndex}, temporal index: ${temporalIndex} 
+                    </div>
+                    <div>${byteStr}</div>   
+                `;
             });
 
 
