@@ -1,166 +1,166 @@
 <!doctype html>
 
 <html>
-    <head>
-        <meta charset="utf-8" />
-        <meta content="WebRTC code samples" name="description" />
-        <meta content="width=device-width, user-scalable=yes, initial-scale=1, maximum-scale=1" name="viewport" />
+<head>
+    <meta charset="utf-8"/>
+    <meta content="WebRTC code samples" name="description"/>
+    <meta content="width=device-width, user-scalable=yes, initial-scale=1, maximum-scale=1" name="viewport"/>
 
-        <title>SVC Taco</title>
-        <style>
-            html,
-            body {
-                font-family: 'Times New Roman', Times, serif;
-                height: 100vh;
-                width: 100vw;
-            }
+    <title>SVC Taco</title>
+    <style>
+        html,
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            height: 100vh;
+            width: 100vw;
+        }
 
-            body {
-                display: flex;
-                flex-direction: column;
-            }
+        body {
+            display: flex;
+            flex-direction: column;
+        }
 
-            video {
-                width: 320px;
-                height: 240px;
-                border: 1px gray;
-            }
+        video {
+            width: 320px;
+            height: 240px;
+            border: 1px gray;
+        }
 
-            button:disabled {
-                display: none;
-            }
+        button:disabled {
+            display: none;
+        }
 
-            ul {
-                list-style-type: none;
-                padding-left: 0;
-                margin: 0;
-            }
+        ul {
+            list-style-type: none;
+            padding-left: 0;
+            margin: 0;
+        }
 
-            li {
-                margin: 0;
-                padding: 2px;
-                cursor: pointer;
-            }
+        li {
+            margin: 0;
+            padding: 2px;
+            cursor: pointer;
+        }
 
-            li p {
-                margin: 0;
-                padding: 2px;
-            }
+        li p {
+            margin: 0;
+            padding: 2px;
+        }
 
-            .video-header {
-                height: 25px;
-            }
+        .video-header {
+            height: 25px;
+        }
 
-            #environment {
-                display: flex;
-                width: calc(100vw - 2px);
-                background-color: antiquewhite;
-            }
+        #environment {
+            display: flex;
+            width: calc(100vw - 2px);
+            background-color: antiquewhite;
+        }
 
-            #layers {
-                flex-grow: 1;
-                overflow-y: scroll;
-                display: flex;
-                width: calc(100vw - 2px);
-            }
-        </style>
-    </head>
+        #layers {
+            flex-grow: 1;
+            overflow-y: scroll;
+            display: flex;
+            width: calc(100vw - 2px);
+        }
+    </style>
+</head>
 
-    <body>
-        <div id="header">
-            <a class="underline hover:no-underline text-xl" href="https://github.com/hypervideo/svc-taco">svc-taco</a>
-            <p>
-                svc-taco opens a unidirectional WebRTC connection between your local computer and a remote peer. As the
-                sender streams SVC-encoded video frames to the receiver, the VideoDecoder intercepts and decodes the
-                encoded chunks into VideoFrames.
+<body>
+<div id="header">
+    <a class="underline hover:no-underline text-xl" href="https://github.com/hypervideo/svc-taco">svc-taco</a>
+    <p>
+        svc-taco opens a unidirectional WebRTC connection between your local computer and a remote peer. As the
+        sender streams SVC-encoded video frames to the receiver, the VideoDecoder intercepts and decodes the
+        encoded chunks into VideoFrames.
 
-                <br />
-                <br />
-                Check your networks tab! There is no network call.
-            </p>
+        <br/>
+        <br/>
+        Check your networks tab! There is no network call.
+    </p>
+</div>
+
+<div id="environment">
+    <div id="sender">
+        <div class="video-header">
+            <button id="startButton">Start (Press 1)</button>
+            <button disabled id="callButton">Call (Press 2)</button>
+            <button disabled id="hangupButton">Hang Up (Press 3)</button>
         </div>
+        <div>WebRTC Sender (Computer)</div>
+        <video autoplay id="video1" muted playsinline></video>
+    </div>
 
-        <div id="environment">
-            <div id="sender">
-                <div class="video-header">
-                    <button id="startButton">Start (Press 1)</button>
-                    <button disabled id="callButton">Call (Press 2)</button>
-                    <button disabled id="hangupButton">Hang Up (Press 3)</button>
-                </div>
-                <div>WebRTC Sender (Computer)</div>
-                <video autoplay id="video1" muted playsinline></video>
-            </div>
+    <div>
+        <div style="height: 25px"></div>
+        <div>WebRTC Receiver (Remote Peer)</div>
+        <video autoplay id="video2" playsinline></video>
+        <video autoplay id="video2a" playsinline style="display: none"></video>
+    </div>
+    <div>
+        <div class="video-header">
+            <label for="spatial">Spatial Layer:</label>
 
-            <div>
-                <div style="height: 25px"></div>
-                <div>WebRTC Receiver (Remote Peer)</div>
-                <video autoplay id="video2" playsinline></video>
-                <video autoplay id="video2a" playsinline style="display: none"></video>
-            </div>
-            <div>
-                <div class="video-header">
-                    <label for="spatial">Spatial Layer:</label>
+            <select id="spatial" name="spatial-layers">
+                <option value="3">Layer 3</option>
+                <option value="2">Layer 2</option>
+                <option value="1">Base Layer</option>
+            </select>
 
-                    <select id="spatial" name="spatial-layers">
-                        <option value="3">Layer 3</option>
-                        <option value="2">Layer 2</option>
-                        <option value="1">Base Layer</option>
-                    </select>
+            <label for="temporal">Temporal Layer:</label>
 
-                    <label for="temporal">Temporal Layer:</label>
+            <select id="temporal" name="temporal-layers">
+                <option value="3">Layer 3</option>
+                <option value="2">Layer 2</option>
+                <option value="1">Base Layer</option>
+            </select>
+        </div>
+        <div>Frames Decoded by WebCodec's VideoDecoder</div>
+        <video autoplay id="video3" playsinline></video>
+    </div>
+</div>
+<div>
+    <p>
+        *There are actually two remote computer to peer connections. One connection uses the scalability mode
+        <code>L3T3</code> to encode video frames. The other uses <code>S3T3</code>. The WebRTC receiver video
+        frame above uses the former scalability mode.
+    </p>
+    <p>
+        <code>L3T3</code> and <code>S3T3</code> both have three spatial layers and three temporal layers.
+        <code>L3T3</code> chunks depend on lower layers while <code>S3T3</code> chunks have no inter-layer
+        dependency, also known as simulcast.
+    </p>
 
-                    <select id="temporal" name="temporal-layers">
-                        <option value="3">Layer 3</option>
-                        <option value="2">Layer 2</option>
-                        <option value="1">Base Layer</option>
-                    </select>
-                </div>
-                <div>Frames Decoded by WebCodec's VideoDecoder</div>
-                <video autoplay id="video3" playsinline></video>
-            </div>
+    <p>Key frames are green, delta frames are yellow.</p>
+</div>
+<div id="layers">
+    <div style="min-width: 30em; display: flex; margin-right: 3em">
+        <div style="margin-right: 8px">
+            S3T3 Encoded Frames
+            <ul id="s3t3-entries"></ul>
         </div>
         <div>
-            <p>
-                *There are actually two remote computer to peer connections. One connection uses the scalability mode
-                <code>L3T3</code> to encode video frames. The other uses <code>S3T3</code>. The WebRTC receiver video
-                frame above uses the former scalability mode.
-            </p>
-            <p>
-                <code>L3T3</code> and <code>S3T3</code> both have three spatial layers and three temporal layers.
-                <code>L3T3</code> chunks depend on lower layers while <code>S3T3</code> chunks have no inter-layer
-                dependency, also known as simulcast.
-            </p>
-
-            <p>Key frames are green, delta frames are yellow.</p>
+            L3T3 Encoded Frames
+            <ul id="l3t3-entries"></ul>
         </div>
-        <div id="layers">
-            <div style="min-width: 30em; display: flex; margin-right: 8em">
-                <div style="margin-right: 8px">
-                    S3T3 Encoded Frames
-                    <div id="s3t3-entries"></div>
-                </div>
-                <div>
-                    L3T3 Encoded Frames
-                    <div id="l3t3-entries"></div>
-                </div>
+    </div>
+    <div style="flex-grow: 1">
+        <div>Byte Content</div>
+        <div style="display: flex">
+            <div style="min-width: 10em; margin-right: 6em">
+                S3T3
+                <div id="s3t3-frame-bytes" style="max-width: 40em"></div>
             </div>
-            <div style="flex-grow: 1">
-                <div>Byte Content</div>
-                <div style="display: flex">
-                    <div style="min-width: 10em; margin-right: 20em">
-                        S3T3
-                        <div id="s3t3-frame-bytes" style="max-width: 40em"></div>
-                    </div>
-                    <div>
-                        L3T3
-                        <div id="l3t3-frame-bytes" style="max-width: 40em"></div>
-                    </div>
-                </div>
+            <div>
+                L3T3
+                <div id="l3t3-frame-bytes" style="max-width: 40em"></div>
             </div>
         </div>
+    </div>
+</div>
 
-        <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
-        <script src="js/videopipe.js"></script>
-        <script async src="js/main.js"></script>
-    </body>
+<script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+<script src="js/videopipe.js"></script>
+<script async src="js/main.js"></script>
+</body>
 </html>

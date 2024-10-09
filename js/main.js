@@ -84,7 +84,7 @@ let remoteStream;
 // See
 //   https://developer.mozilla.org/en-US/docs/Web/API/Worker
 // for basic concepts.
-const worker = new Worker('js/worker.js', { name: 'E2EE worker', type: 'module' });
+const worker = new Worker('js/worker.js', {name: 'E2EE worker', type: 'module'});
 
 const supportsSetCodecPreferences =
     window.RTCRtpTransceiver && 'setCodecPreferences' in window.RTCRtpTransceiver.prototype;
@@ -168,12 +168,12 @@ async function start() {
 // Here we want to decode the encoded video chunk
 function setupSenderTransform(sender, layered) {
     if (window.RTCRtpScriptTransform) {
-        sender.transform = new RTCRtpScriptTransform(worker, { operation: 'encode' });
+        sender.transform = new RTCRtpScriptTransform(worker, {operation: 'encode'});
         return;
     }
 
     const senderStreams = sender.createEncodedStreams();
-    const { readable, writable } = senderStreams;
+    const {readable, writable} = senderStreams;
     worker.postMessage(
         {
             operation: `encode-layered-${layered}`,
@@ -186,7 +186,7 @@ function setupSenderTransform(sender, layered) {
 
 function setupReceiverTransform(receiver, layered) {
     if (window.RTCRtpScriptTransform) {
-        receiver.transform = new RTCRtpScriptTransform(worker, { operation: 'decode' });
+        receiver.transform = new RTCRtpScriptTransform(worker, {operation: 'decode'});
         return;
     }
 
@@ -194,7 +194,7 @@ function setupReceiverTransform(receiver, layered) {
     // https://developer.mozilla.org/en-US/docs/Web/API/RTCRtpReceiver and grep for `createEncodedStreams()`
     const receiverStreams = receiver.createEncodedStreams();
     // console.log(`receiverStreams`, receiverStreams);
-    const { readable, writable } = receiverStreams;
+    const {readable, writable} = receiverStreams;
     worker.postMessage(
         {
             operation: `decode-layered-${layered}`,
@@ -205,7 +205,7 @@ function setupReceiverTransform(receiver, layered) {
     );
 }
 
-const mediaStreamTrackGenerator = new MediaStreamTrackGenerator({ kind: 'video' });
+const mediaStreamTrackGenerator = new MediaStreamTrackGenerator({kind: 'video'});
 const writable = mediaStreamTrackGenerator.writable;
 
 worker.postMessage(
@@ -216,139 +216,74 @@ worker.postMessage(
     [writable],
 );
 
-const encodedL3T3Frames = new Map();
-const encodedS3T3Frames = new Map();
 
-worker.onmessage = ({ data }) => {
+worker.onmessage = ({data}) => {
     if (data.operation === 'track-ready') {
         video3.srcObject = new MediaStream([mediaStreamTrackGenerator]);
     }
 
     if (data.operation === 'encoded-frame') {
-        const { layered, timestamp, spatialIndex, temporalIndex, size, type, frameData } = data;
+        const {layered, timestamp, spatialIndex, temporalIndex, size, type, frameData} = data;
+        let bytes = layered ? bytesL3T3 : bytesS3T3;
 
-        let frameMap = layered ? encodedL3T3Frames : encodedS3T3Frames;
+        const timestampId = `${layered}-${timestamp}`;
+        const timestampLi = document.getElementById(timestampId);
 
-        if (frameMap.has(timestamp)) {
-            const layers = frameMap.get(timestamp);
-            layers.push({
-                spatialIndex,
-                temporalIndex,
-                size,
-                type,
-                frameData,
-            });
+        const frameLi = document.createElement('li');
+        frameLi.style.padding = '1px';
+        frameLi.style.backgroundColor = type === 'delta' ? 'yellow' : 'lawngreen';
+        frameLi.style.cursor = 'pointer';
 
-            frameMap.set(timestamp, layers);
-            updateEncodedFrame(timestamp, layers, layered);
+        const p = document.createElement('p');
+        p.textContent = JSON.stringify({
+            spatialIndex,
+            temporalIndex,
+            size,
+        }, null, 2)
+
+        frameLi.appendChild(p);
+        frameLi.addEventListener('click', (e) => {
+            e.preventDefault();
+
+            const byteArray = new Uint8Array(frameData);
+
+            let byteStr = '';
+
+            for (let idx = 0; idx < byteArray.length; idx++) {
+                byteStr += byteArray[idx].toString(16).padStart(2, '0') + ' ';
+            }
+
+            bytes.innerHTML = `
+                    <div style="padding-bottom: 8px;">
+                        ${timestamp}, spatial index: ${spatialIndex}, temporal index: ${temporalIndex} 
+                    </div>
+                    <div>${byteStr}</div>   
+                `;
+        });
+
+
+        if (timestampLi) {
+            const ul = timestampLi.querySelector('ul');
+            ul.appendChild(frameLi);
         } else {
-            frameMap.set(timestamp, [
-                {
-                    spatialIndex,
-                    temporalIndex,
-                    size,
-                    type,
-                    frameData,
-                },
-            ]);
+            const containerUl = document.getElementById(layered ? 'l3t3-entries' : 's3t3-entries');
 
-            appendEncodedFrame(
-                timestamp,
-                [
-                    {
-                        spatialIndex,
-                        temporalIndex,
-                        size,
-                        type,
-                        frameData,
-                    },
-                ],
-                layered,
-            );
+            const timestampLi = document.createElement('li');
+            timestampLi.setAttribute('id', timestampId);
+
+            const ul = document.createElement('ul');
+            ul.appendChild(frameLi);
+            const span = document.createElement('strong');
+            span.innerText = `${timestamp}`;
+            timestampLi.appendChild(span);
+            timestampLi.appendChild(ul);
+            containerUl.appendChild(timestampLi);
         }
     }
 };
 
 const bytesS3T3 = document.getElementById('s3t3-frame-bytes');
 const bytesL3T3 = document.getElementById('l3t3-frame-bytes');
-
-function updateEncodedFrame(timestamp, frames, layered) {
-    const entry = document.querySelector(`#entry-${layered}-${timestamp} ul`);
-    if (entry) {
-        let bytes = layered ? bytesL3T3 : bytesS3T3;
-
-        entry.innerHTML = '';
-
-        frames.forEach(({ spatialIndex, temporalIndex, size, type, frameData }) => {
-            const li = document.createElement('li');
-            li.style.padding = '2px';
-            li.style.backgroundColor = type === 'delta' ? 'yellow' : 'lawngreen';
-
-            const p = document.createElement('p');
-            p.textContent = JSON.stringify(
-                {
-                    spatialIndex,
-                    temporalIndex,
-                    size,
-                },
-                null,
-                2,
-            );
-
-            li.appendChild(p);
-            li.addEventListener('click', (e) => {
-                e.preventDefault();
-
-                const byteArray = new Uint8Array(frameData);
-
-                let byteStr = '';
-
-                for (let idx = 0; idx < byteArray.length; idx++) {
-                    byteStr += byteArray[idx].toString(16).padStart(2, '0') + ' ';
-                }
-
-                bytes.innerHTML = `
-                    <div style="padding-bottom: 8px;">
-                        ${timestamp}, spatial index: ${spatialIndex}, temporal index: ${temporalIndex} 
-                    </div>
-                    <div>${byteStr}</div>   
-                `;
-            });
-
-            entry.appendChild(li);
-        });
-    }
-}
-
-function appendEncodedFrame(timestamp, frames, layered) {
-    const container = document.getElementById(layered ? 'l3t3-entries' : 's3t3-entries');
-    const frameEntry = document.createElement('div');
-    frameEntry.setAttribute('id', `entry-${layered}-${timestamp}`);
-    frameEntry.innerHTML = `
-            <div><strong>Timestamp ${timestamp}:</strong></div>
-              <ul>
-                  ${frames
-                      .map(
-                          (f) => `
-                      <li style="background-color: ${f.type === 'delta' ? 'yellow' : 'lawngreen'};">
-                           <p>${JSON.stringify(
-                               {
-                                   spatialIndex: f.spatialIndex,
-                                   temporalIndex: f.temporalIndex,
-                                   size: f.size,
-                               },
-                               null,
-                               2,
-                           )}</p>
-                      </li>
-                  `,
-                      )
-                      .join('')}
-        </ul>
-    `;
-
-    container.appendChild(frameEntry);
-}
 
 async function call() {
     callButton.disabled = true;
