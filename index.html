@@ -13,7 +13,12 @@
             font-family: "Times New Roman", Times, serif;
             height: 100vh;
             width: 100vw;
-            padding: 1px;
+            padding: 2px;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
         }
 
         video {
@@ -26,33 +31,43 @@
             display: none;
         }
 
-        #videos {
-            flex-shrink: 0;
+        ul {
+            list-style-type: none;
+            padding-left: 0;
+            margin: 0;
+        }
+
+        li {
+            margin: 0;
+            padding: 2px;
+        }
+
+        li p {
+            margin: 0;
+            padding: 2px;
+        }
+
+        .video-header {
+            height: 25px;
         }
 
         #environment {
             display: flex;
             width: 100vw;
+            background-color: antiquewhite;
         }
 
-        #divider {
-            width: 1px;
-            background-color: slategray;
-            margin: 0 16px;
-            height: auto;
-        }
 
-        #decoder {
+        #layers {
             flex-grow: 1;
+            overflow-y: scroll;
+            margin: 0;
+            padding: 0;
         }
 
-        #decoder-svc {
-            display: flex;
-            gap: 20px;
-        }
-
-        #decoder-svc:disabled {
-            display: none;
+        #l3t3-entries {
+            margin: 0;
+            padding: 0;
         }
 
     </style>
@@ -73,51 +88,68 @@
     </p>
 </div>
 
-<div id="buttons">
-    <button id="startButton">Start (Press 1)</button>
-    <button disabled id="callButton">Call (Press 2)</button>
-    <button disabled id="hangupButton">Hang Up (Press 3)</button>
-</div>
 
 <div id="environment">
-    <div id="videos">
-        <div>
-            <p>WebRTC Sender (Computer)</p>
-            <video autoplay id="video1" muted playsinline></video>
+    <div id="sender">
+        <div class="video-header">
+            <button id="startButton">Start (Press 1)</button>
+            <button disabled id="callButton">Call (Press 2)</button>
+            <button disabled id="hangupButton">Hang Up (Press 3)</button>
         </div>
+        <div>WebRTC Sender (Computer)</div>
+        <video autoplay id="video1" muted playsinline></video>
+    </div>
 
+    <div>
+        <div style="height: 25px;">
+            <label for="svc-mode">Scalability mode:</label>
+
+            <select id="svc-mode" name="svc-layers">
+                <option value="true">L3T3</option>
+                <option value="false">S3T3</option>
+            </select>
+        </div>
+        <div>WebRTC Receiver (Remote Peer)</div>
+        <video autoplay id="video2" playsinline></video>
+        <video autoplay id="video2a" playsinline></video>
+    </div>
+    <div>
+        <div class="video-header">
+            <label for="spatial">Spatial Layer:</label>
+
+            <select id="spatial" name="spatial-layers">
+                <option value="3">Layer 3</option>
+                <option value="2">Layer 2</option>
+                <option value="1">Base Layer</option>
+            </select>
+
+            <label for="temporal">Temporal Layer:</label>
+
+            <select id="temporal" name="temporal-layers">
+                <option value="3">Layer 3</option>
+                <option value="2">Layer 2</option>
+                <option value="1">Base Layer</option>
+            </select>
+        </div>
+        <div>Frames Decoded by WebCodec's VideoDecoder</div>
+        <video autoplay id="video3" playsinline></video>
+    </div>
+</div>
+
+<div id="layers">
+    <p>
+        *There are actually two remote peers with different scalability modes. Above the WebRTC receiver, you can toggle
+        video elements.
+    </p>
+
+    <div>
         <div>
-            <p>WebRTC Receiver (Remote Peer)</p>
-            <video autoplay id="video2" playsinline></video>
+            <p>L3T3 Encoded Frames</p>
+        </div>
+        <div id="l3t3-entries">
         </div>
     </div>
-    <div id="divider"></div>
-    <div id="decoder">
-        <div>
-            <p>Frames Decoded by WebCodec's VideoDecoder</p>
-            <video autoplay id="video3" playsinline></video>
-        </div>
-        <div id="decoder-svc">
-            <div>
-                <label for="spatial">Spatial Layer:</label>
 
-                <select id="spatial" name="spatial-layers">
-                    <option value="3">Layer 3</option>
-                    <option value="2">Layer 2</option>
-                    <option value="1">Base Layer</option>
-                </select>
-            </div>
-            <div>
-                <label for="temporal">Temporal Layer:</label>
-
-                <select id="temporal" name="temporal-layers">
-                    <option value="3">Layer 3</option>
-                    <option value="2">Layer 2</option>
-                    <option value="1">Base Layer</option>
-                </select>
-            </div>
-        </div>
-    </div>
 </div>
 
 <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>

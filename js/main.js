@@ -5,6 +5,7 @@
 
 const video1 = document.querySelector('video#video1');
 const video2 = document.querySelector('video#video2');
+const video2a = document.querySelector('video#video2a')
 const video3 = document.querySelector('video#video3');
 
 video2.addEventListener('resize', () => {
@@ -216,11 +217,83 @@ worker.postMessage({
     operation: 'init', writable
 }, [writable]);
 
+const encodedL3T3Frames = new Map();
+
 worker.onmessage = ({data}) => {
     if (data.operation === 'track-ready') {
         video3.srcObject = new MediaStream([mediaStreamTrackGenerator]);
     }
+
+    if (data.operation === "encoded-frame") {
+        const {timestamp, spatialIndex, temporalIndex, size, type} = data;
+
+        if (encodedL3T3Frames.has(timestamp)) {
+            const layers = encodedL3T3Frames.get(timestamp);
+            layers.push({
+                spatialIndex,
+                temporalIndex,
+                size,
+                type,
+            });
+
+            encodedL3T3Frames.set(timestamp, layers);
+            updateEncodedFrame(timestamp, layers);
+
+        } else {
+            encodedL3T3Frames.set(timestamp, [{
+                spatialIndex,
+                temporalIndex,
+                size,
+                type,
+            }]);
+
+            appendEncodedFrame(timestamp, [{
+                spatialIndex,
+                temporalIndex,
+                size,
+                type
+            }])
+        }
+    }
 };
+
+function updateEncodedFrame(timestamp, frames) {
+    const entry = document.querySelector(`#entry-${timestamp} ul`);
+    if (entry) {
+        entry.innerHTML = frames.map(f => `
+            <li style="padding: 2px; background-color: ${f.type === 'delta' ? 'yellow' : 'lawngreen'};">
+             
+                <p>${JSON.stringify({
+            spatialIndex: f.spatialIndex,
+            temporalIndex: f.temporalIndex,
+            size: f.size,
+        }, null, 2)}</p> 
+            </li> 
+        `).join('')
+    }
+}
+
+function appendEncodedFrame(timestamp, frames) {
+    const container = document.getElementById('l3t3-entries');
+    const frameEntry = document.createElement('div');
+    frameEntry.setAttribute('id', `entry-${timestamp}`);
+    frameEntry.innerHTML = `
+            <div><strong>Timestamp ${timestamp}:</strong></div>
+        <ul>
+            ${frames.map(f => `
+                <li style="background-color: ${f.type === 'delta' ? 'yellow' : 'lawngreen'};">
+                     <p>${JSON.stringify({
+        spatialIndex: f.spatialIndex,
+        temporalIndex: f.temporalIndex,
+        size: f.size,
+    }, null, 2)}</p> 
+                </li>
+            `).join('')}
+        </ul>
+    `;
+
+    container.appendChild(frameEntry);
+}
 
 async function call() {
     callButton.disabled = true;
@@ -247,6 +320,8 @@ async function call() {
 
 function hangup() {
     // console.log('Ending call');
+
+    console.log(encodedL3T3Frames);
     startToEnd.close();
     hangupButton.disabled = true;
     callButton.disabled = false;
