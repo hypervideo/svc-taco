@@ -4,7 +4,6 @@
 
 'use strict';
 
-
 let timestampCatalog = new Map();
 let writer;
 
@@ -19,7 +18,7 @@ const videoDecoder = new VideoDecoder({
             duration,
             format,
             timestamp,
-            visibleRect
+            visibleRect,
         } = frame;
 
         // // console.log("Good frame", {timestamp, codedWidth, codedHeight});
@@ -38,15 +37,14 @@ const videoDecoder = new VideoDecoder({
         let code = error.name;
 
         // console.error(`Failed to decode: `, message, code);
-    }
+    },
 });
-
 
 async function initializeDecoder() {
     const config = {
-        codec: "av01.0.04M.08",
+        codec: 'av01.0.04M.08',
         hardwareAcceleration: 'prefer-software',
-    }
+    };
 
     try {
         const support = await VideoDecoder.isConfigSupported(config);
@@ -55,25 +53,24 @@ async function initializeDecoder() {
             // console.log("Video Decoder configuration is supported:", support.config);
             videoDecoder.configure(support.config);
         } else {
-            return new Error("Configuration is not supported");
+            return new Error('Configuration is not supported');
         }
     } catch (e) {
-        throw new Error(`Decoder init error ${e}`)
+        throw new Error(`Decoder init error ${e}`);
     }
 }
 
 initializeDecoder();
 
-
-let highestSpatialLayer = 3, highestTemporalLayer = 3;
-
+let highestSpatialLayer = 3,
+    highestTemporalLayer = 3;
 
 async function handleTransform(operation, readable, writable) {
     if (operation === 'encode-layered-true') {
         const transformer = new TransformStream({
             async transform(encodedFrame, controller) {
-                const {temporalIndex, spatialIndex, width, height} = encodedFrame.getMetadata();
-                const {timestamp, data, type} = encodedFrame;
+                const { temporalIndex, spatialIndex, width, height } = encodedFrame.getMetadata();
+                const { timestamp, data, type } = encodedFrame;
 
                 const size = data.byteLength;
 
@@ -88,23 +85,20 @@ async function handleTransform(operation, readable, writable) {
                     type,
                 });
 
-
                 controller.enqueue(encodedFrame);
-            }
-        })
+            },
+        });
 
-        await readable
-            .pipeThrough(transformer)
-            .pipeTo(writable);
-    } else if (operation === "encode-layered-false") {
+        await readable.pipeThrough(transformer).pipeTo(writable);
+    } else if (operation === 'encode-layered-false') {
         const transformer = new TransformStream({
             async transform(encodedFrame, controller) {
-                const {temporalIndex, spatialIndex, width, height} = encodedFrame.getMetadata();
-                const {timestamp, data, type} = encodedFrame;
+                const { temporalIndex, spatialIndex, width, height } = encodedFrame.getMetadata();
+                const { timestamp, data, type } = encodedFrame;
 
                 const size = data.byteLength;
 
-                console.log(`${spatialIndex}, ${temporalIndex}`)
+                console.log(`${spatialIndex}, ${temporalIndex}`);
 
                 postMessage({
                     operation: 'encoded-frame',
@@ -117,23 +111,18 @@ async function handleTransform(operation, readable, writable) {
                     type,
                 });
 
-
                 if (spatialIndex === 2) {
                     controller.enqueue(encodedFrame);
                 }
+            },
+        });
 
-            }
-        })
-
-        await readable
-            .pipeThrough(transformer)
-            .pipeTo(writable);
+        await readable.pipeThrough(transformer).pipeTo(writable);
     } else if (operation === 'decode-layered-true') {
         const transformer = new TransformStream({
             async transform(encodedFrame, controller) {
-                const {temporalIndex, spatialIndex, width, height} = encodedFrame.getMetadata();
-                const {timestamp, data, type} = encodedFrame;
-
+                const { temporalIndex, spatialIndex, width, height } = encodedFrame.getMetadata();
+                const { timestamp, data, type } = encodedFrame;
 
                 if (temporalIndex < highestTemporalLayer && spatialIndex < highestSpatialLayer) {
                     // console.log("Decoding encodedChunk: ", {timestamp, temporalIndex, spatialIndex})
@@ -142,7 +131,7 @@ async function handleTransform(operation, readable, writable) {
                         timestamp,
                         data,
                         type,
-                    })
+                    });
 
                     await videoDecoder.decode(chunk);
                 }
@@ -150,44 +139,45 @@ async function handleTransform(operation, readable, writable) {
                 controller.enqueue(encodedFrame);
             },
         });
-        await readable
-            .pipeThrough(transformer)
-            .pipeTo(writable);
-    } else if (operation === "decode-layered-false") {
+        await readable.pipeThrough(transformer).pipeTo(writable);
+    } else if (operation === 'decode-layered-false') {
         const transformer = new TransformStream({
             async transform(encodedFrame, controller) {
-                const {temporalIndex, spatialIndex} = encodedFrame.getMetadata();
+                const { temporalIndex, spatialIndex } = encodedFrame.getMetadata();
 
                 if (spatialIndex === 2) {
                     controller.enqueue(encodedFrame);
                 }
-            }
-        })
-        await readable
-            .pipeThrough(transformer)
-            .pipeTo(writable);
+            },
+        });
+        await readable.pipeThrough(transformer).pipeTo(writable);
     }
 }
 
 // Handler for messages, including transferable streams.
-onmessage = async ({data}) => {
-    let {operation} = data;
+onmessage = async ({ data }) => {
+    let { operation } = data;
 
-    if (operation === "init") {
+    if (operation === 'init') {
         writer = data.writable.getWriter();
 
         postMessage({
-            operation: "track-ready",
-        })
+            operation: 'track-ready',
+        });
     }
 
-    if (operation === 'encode-layered-true' || operation === 'encode-layered-false' || operation === 'decode-layered-true' || operation === 'decode-layered-false') {
-        let {readable, writable} = data;
+    if (
+        operation === 'encode-layered-true' ||
+        operation === 'encode-layered-false' ||
+        operation === 'decode-layered-true' ||
+        operation === 'decode-layered-false'
+    ) {
+        let { readable, writable } = data;
         return await handleTransform(operation, readable, writable);
     }
 
     if (operation === 'layer-change') {
-        let {temporal, layer} = data;
+        let { temporal, layer } = data;
 
         if (temporal) {
             highestTemporalLayer = layer;

@@ -13,8 +13,10 @@
             packages = with pkgs; [
               go
               gopls
-              gofumpt
               just
+              nodePackages.prettier
+              fd
+              nodejs
             ];
           };
         }
