@@ -6,8 +6,8 @@
  *  tree.
  */
 button {
-  margin: 0 20px 0 0;
-  width: 83px;
+    margin: 0 20px 0 0;
+    width: 83px;
 }
 
 button#hangupButton {
@@ -15,41 +15,39 @@ button#hangupButton {
 }
 
 video {
-  --width: 45%;
-  width: var(--width);
-  height: calc(var(--width) * 0.75);
-  margin: 0 0 20px 0;
-  vertical-align: top;
+    --width: 45%;
+    width: var(--width);
+    height: calc(var(--width) * 0.75);
+    margin: 0 0 20px 0;
+    vertical-align: top;
 }
 
 video#localVideo {
-  margin: 0 20px 20px 0;
+    margin: 0 20px 20px 0;
 }
 
 div.box {
-  margin: 1em;
+    margin: 1em;
 }
 
 @media screen and (max-width: 400px) {
-  button {
-    width: 83px;
-    margin: 0 11px 10px 0;
-  }
+    button {
+        width: 83px;
+        margin: 0 11px 10px 0;
+    }
 
-  video {
-    height: 90px;
-    margin: 0 0 10px 0;
-    width: calc(50% - 7px);
-  }
-  video#localVideo {
-    margin: 0 10px 20px 0;
-  }
-
+    video {
+        height: 90px;
+        margin: 0 0 10px 0;
+        width: calc(50% - 7px);
+    }
+    video#localVideo {
+        margin: 0 10px 20px 0;
+    }
 }
 
-
 div.graph-container {
-	float: left;
-	margin: 0.5em;
-	width: calc(50% - 1em);
+    float: left;
+    margin: 0.5em;
+    width: calc(50% - 1em);
 }
