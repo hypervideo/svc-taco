@@ -31,35 +31,39 @@ function VideoPipe(stream, forceSend, forceReceive, handler, scalabilityMode) {
     this.pc2.ontrack = handler;
 
     stream.getTracks().forEach((track) => {
+
         if (track.kind !== 'video') {
-            this.pc1.addTrack(track, stream);
+            this.pc1.addTrack(track, stream)
         } else {
             let tr = this.pc1.addTransceiver(track, {
                 streams: [stream],
-                sendEncodings: [{ scalabilityMode: scalabilityMode }],
+                sendEncodings: [
+                    {scalabilityMode: scalabilityMode}
+                ]
             });
 
             const videoCodecs = RTCRtpSender.getCapabilities('video').codecs;
-            const av1Codecs = videoCodecs.filter((codec) => codec.mimeType === 'video/AV1');
+            const av1Codecs = videoCodecs.filter(codec => codec.mimeType === 'video/AV1');
 
             // Ensure AV1 is the only codec used.
             if (av1Codecs.length > 0) {
                 tr.setCodecPreferences(av1Codecs);
-                console.log('AV1 codec set as the only preferred codec.', av1Codecs);
+                console.log("AV1 codec set as the only preferred codec.", av1Codecs);
             } else {
-                console.error('AV1 codec not supported by this browser.');
+                console.error("AV1 codec not supported by this browser.");
             }
+
         }
     });
 }
 
 VideoPipe.prototype.negotiate = async function () {
-    this.pc1.onicecandidate = (e) => this.pc2.addIceCandidate(e.candidate);
-    this.pc2.onicecandidate = (e) => this.pc1.addIceCandidate(e.candidate);
+    this.pc1.onicecandidate = e => this.pc2.addIceCandidate(e.candidate);
+    this.pc2.onicecandidate = e => this.pc1.addIceCandidate(e.candidate);
 
     const offer = await this.pc1.createOffer();
     // Disable video/red to allow for easier inspection in Wireshark.
-    await this.pc2.setRemoteDescription({ type: 'offer', sdp: offer.sdp.replace('red/90000', 'green/90000') });
+    await this.pc2.setRemoteDescription({type: 'offer', sdp: offer.sdp.replace('red/90000', 'green/90000')});
     await this.pc1.setLocalDescription(offer);
 
     const answer = await this.pc2.createAnswer();

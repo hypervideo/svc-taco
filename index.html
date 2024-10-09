@@ -13,7 +13,6 @@
             font-family: "Times New Roman", Times, serif;
             height: 100vh;
             width: 100vw;
-            padding: 2px;
         }
 
         body {
@@ -40,6 +39,7 @@
         li {
             margin: 0;
             padding: 2px;
+            cursor: pointer;
         }
 
         li p {
@@ -53,22 +53,17 @@
 
         #environment {
             display: flex;
-            width: 100vw;
+            width: calc(100vw - 2px);
             background-color: antiquewhite;
         }
-
 
         #layers {
             flex-grow: 1;
             overflow-y: scroll;
-            margin: 0;
-            padding: 0;
+            display: flex;
+            width: calc(100vw - 2px);
         }
 
-        #l3t3-entries {
-            margin: 0;
-            padding: 0;
-        }
 
     </style>
 </head>
@@ -129,8 +124,7 @@
         <video autoplay id="video3" playsinline></video>
     </div>
 </div>
-
-<div id="layers">
+<div>
     <p>
         *There are actually two remote computer to peer connections. One connection uses the scalability mode
         <code>L3T3</code> to encode video frames. The other uses <code>S3T3</code>. The WebRTC receiver video frame
@@ -145,20 +139,32 @@
     <p>
         Key frames are green, delta frames are yellow.
     </p>
-
-    <div style="display: flex; ">
+</div>
+<div id="layers">
+    <div style="min-width: 30em; display: flex; margin-right: 8em;">
         <div style="margin-right: 8px">
-            <div>
-                <p>S3T3 Encoded Frames</p>
-            </div>
+            S3T3 Encoded Frames
             <div id="s3t3-entries">
             </div>
         </div>
         <div>
-            <div>
-                <p>L3T3 Encoded Frames</p>
-            </div>
+            L3T3 Encoded Frames
             <div id="l3t3-entries">
+            </div>
+        </div>
+    </div>
+    <div style="flex-grow: 1;">
+        <div>Byte Content</div>
+        <div style="display: flex;">
+            <div style="min-width: 10em; margin-right: 20em;">
+                S3T3
+                <div id="s3t3-frame-bytes" style="max-width: 40em">
+                </div>
+            </div>
+            <div>
+                L3T3
+                <div id="l3t3-frame-bytes" style="max-width: 40em">
+                </div>
             </div>
         </div>
     </div>

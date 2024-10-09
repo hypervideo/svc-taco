@@ -42,8 +42,8 @@ remoteVideo.addEventListener('resize', () => {
 
 const codecPreferences = document.querySelector('#codecPreferences');
 const scalabilityMode = document.querySelector('#scalabilityMode');
-const supportsSetCodecPreferences =
-    window.RTCRtpTransceiver && 'setCodecPreferences' in window.RTCRtpTransceiver.prototype;
+const supportsSetCodecPreferences = window.RTCRtpTransceiver &&
+    'setCodecPreferences' in window.RTCRtpTransceiver.prototype;
 
 const scalabilityModes = [
     'L1T1',
@@ -73,7 +73,7 @@ const scalabilityModes = [
     'L2T2_KEY',
     'L2T3_KEY',
     'L3T2_KEY',
-    'L3T3_KEY',
+    'L3T3_KEY'
 ];
 
 let localStream;
@@ -91,15 +91,15 @@ let lastResult;
 
 const offerOptions = {
     offerToReceiveAudio: 1,
-    offerToReceiveVideo: 1,
+    offerToReceiveVideo: 1
 };
 
 function getName(pc) {
-    return pc === pc1 ? 'pc1' : 'pc2';
+    return (pc === pc1) ? 'pc1' : 'pc2';
 }
 
 function getOtherPc(pc) {
-    return pc === pc1 ? pc2 : pc1;
+    return (pc === pc1) ? pc2 : pc1;
 }
 
 async function start() {
@@ -107,11 +107,10 @@ async function start() {
     startButton.disabled = true;
     try {
         const stream = await navigator.mediaDevices.getUserMedia({
-            audio: false,
-            video: {
+            audio: false, video: {
                 width: 1280,
                 height: 720,
-            },
+            }
         });
         console.log('Received local stream');
         localVideo.srcObject = stream;
@@ -121,8 +120,8 @@ async function start() {
         alert(`getUserMedia() error: ${e.name}`);
     }
     if (supportsSetCodecPreferences) {
-        const { codecs } = RTCRtpReceiver.getCapabilities('video');
-        codecs.forEach((codec) => {
+        const {codecs} = RTCRtpReceiver.getCapabilities('video');
+        codecs.forEach(codec => {
             if (!['video/AV1'].includes(codec.mimeType)) {
                 return;
             }
@@ -143,19 +142,17 @@ async function start() {
 
             const capabilityPromises = [];
             for (const mode of scalabilityModes) {
-                capabilityPromises.push(
-                    navigator.mediaCapabilities.encodingInfo({
-                        type: 'webrtc',
-                        video: {
-                            contentType: mimeType,
-                            width: 1280,
-                            height: 720,
-                            bitrate: 10000,
-                            framerate: 29.97,
-                            scalabilityMode: mode,
-                        },
-                    }),
-                );
+                capabilityPromises.push(navigator.mediaCapabilities.encodingInfo({
+                    type: 'webrtc',
+                    video: {
+                        contentType: mimeType,
+                        width: 1280,
+                        height: 720,
+                        bitrate: 10000,
+                        framerate: 29.97,
+                        scalabilityMode: mode
+                    }
+                }));
             }
             const capabilityResults = await Promise.all(capabilityPromises);
             for (let i = 0; i < scalabilityModes.length; ++i) {
@@ -205,17 +202,19 @@ async function call() {
     console.log('RTCPeerConnection configuration:', configuration);
     pc1 = new RTCPeerConnection(configuration);
     console.log('Created local peer connection object pc1');
-    pc1.addEventListener('icecandidate', (e) => onIceCandidate(pc1, e));
+    pc1.addEventListener('icecandidate', e => onIceCandidate(pc1, e));
     pc2 = new RTCPeerConnection(configuration);
     console.log('Created remote peer connection object pc2');
-    pc2.addEventListener('icecandidate', (e) => onIceCandidate(pc2, e));
+    pc2.addEventListener('icecandidate', e => onIceCandidate(pc2, e));
     pc2.addEventListener('track', gotRemoteStream);
     const mode = scalabilityMode.value;
     localStream.getTracks().forEach((track) => {
         if (track.kind == 'video' && mode) {
             pc1.addTransceiver(track, {
                 streams: [localStream],
-                sendEncodings: [{ scalabilityMode: mode }],
+                sendEncodings: [
+                    {scalabilityMode: mode}
+                ]
             });
         } else {
             pc1.addTrack(track, localStream);
@@ -289,8 +288,8 @@ function gotRemoteStream(e) {
         const preferredCodec = codecPreferences.options[codecPreferences.selectedIndex];
         if (preferredCodec.value !== '') {
             const [mimeType, sdpFmtpLine] = preferredCodec.value.split(' ');
-            const { codecs } = RTCRtpReceiver.getCapabilities('video');
-            const av1Codecs = codecs.filter((c) => c.mimeType === 'video/AV1');
+            const {codecs} = RTCRtpReceiver.getCapabilities('video');
+            const av1Codecs = codecs.filter(c => c.mimeType === "video/AV1");
             e.transceiver.setCodecPreferences(av1Codecs);
             console.log('Preferred video codec', av1Codecs);
         }
@@ -314,19 +313,14 @@ async function onCreateAnswerSuccess(desc) {
         // Display the video codec that is actually used.
         setTimeout(async () => {
             const stats = await pc1.getStats();
-            stats.forEach((stat) => {
+            stats.forEach(stat => {
                 if (!(stat.type === 'outbound-rtp' && stat.kind === 'video')) {
                     return;
                 }
                 const codec = stats.get(stat.codecId);
-                document.getElementById('actualCodec').innerText =
-                    'Using ' +
-                    codec.mimeType +
-                    ' ' +
-                    (codec.sdpFmtpLine ? codec.sdpFmtpLine + ' ' : '') +
-                    ', payloadType=' +
-                    codec.payloadType +
-                    '.';
+                document.getElementById('actualCodec').innerText = 'Using ' + codec.mimeType +
+                    ' ' + (codec.sdpFmtpLine ? codec.sdpFmtpLine + ' ' : '') +
+                    ', payloadType=' + codec.payloadType + '.';
             });
         }, 1000);
     } catch (e) {
@@ -336,7 +330,7 @@ async function onCreateAnswerSuccess(desc) {
 
 async function onIceCandidate(pc, event) {
     try {
-        await getOtherPc(pc).addIceCandidate(event.candidate);
+        await (getOtherPc(pc).addIceCandidate(event.candidate));
         onAddIceCandidateSuccess(pc);
     } catch (e) {
         onAddIceCandidateError(pc, e);
@@ -373,8 +367,8 @@ window.setInterval(() => {
     if (!sender) {
         return;
     }
-    sender.getStats().then((res) => {
-        res.forEach((report) => {
+    sender.getStats().then(res => {
+        res.forEach(report => {
             let bytes;
             let headerBytes;
             let packets;
@@ -389,11 +383,9 @@ window.setInterval(() => {
                 packets = report.packetsSent;
                 if (lastResult && lastResult.has(report.id)) {
                     // calculate bitrate
-                    const bitrate =
-                        (8 * (bytes - lastResult.get(report.id).bytesSent)) /
+                    const bitrate = 8 * (bytes - lastResult.get(report.id).bytesSent) /
                         (now - lastResult.get(report.id).timestamp);
-                    const headerrate =
-                        (8 * (headerBytes - lastResult.get(report.id).headerBytesSent)) /
+                    const headerrate = 8 * (headerBytes - lastResult.get(report.id).headerBytesSent) /
                         (now - lastResult.get(report.id).timestamp);
 
                     // append to chart
@@ -403,7 +395,8 @@ window.setInterval(() => {
                     bitrateGraph.updateEndDate();
 
                     // calculate number of packets and append to chart
-                    packetSeries.addPoint(now, packets - lastResult.get(report.id).packetsSent);
+                    packetSeries.addPoint(now, packets -
+                        lastResult.get(report.id).packetsSent);
                     packetGraph.setDataSeries([packetSeries]);
                     packetGraph.updateEndDate();
                 }
