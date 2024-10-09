@@ -5,7 +5,7 @@
 
 const video1 = document.querySelector('video#video1');
 const video2 = document.querySelector('video#video2');
-const video2a = document.querySelector('video#video2a')
+const video2a = document.querySelector('video#video2a');
 const video3 = document.querySelector('video#video3');
 
 video2.addEventListener('resize', () => {
@@ -15,7 +15,6 @@ video2.addEventListener('resize', () => {
 video3.addEventListener('resize', () => {
     // console.log(`resize: Decoder video size changed to ${video3.videoWidth}x${video3.videoHeight}`);
 });
-
 
 const startButton = document.getElementById('startButton');
 const callButton = document.getElementById('callButton');
@@ -33,7 +32,7 @@ spatialSelect.addEventListener('change', (event) => {
     worker.postMessage({
         operation: 'layer-change',
         temporal: false,
-        layer: spatialLayer
+        layer: spatialLayer,
     });
 });
 
@@ -44,28 +43,26 @@ temporalSelect.addEventListener('change', (event) => {
     worker.postMessage({
         operation: 'layer-change',
         temporal: true,
-        layer: temporalLayer
+        layer: temporalLayer,
     });
 });
 
-
 document.addEventListener('keydown', (e) => {
-
     switch (e.key) {
-        case "1": {
+        case '1': {
             e.preventDefault();
             !startButton.disabled && start();
             break;
         }
-        case "2": {
+        case '2': {
             e.preventDefault();
             !callButton.disabled && call();
             break;
         }
-        case "3": {
+        case '3': {
             e.preventDefault();
             !hangupButton.disabled && hangup();
-            break
+            break;
         }
         default:
             break;
@@ -75,7 +72,6 @@ document.addEventListener('keydown', (e) => {
 startButton.onclick = start;
 callButton.onclick = call;
 hangupButton.onclick = hangup;
-
 
 let startToEnd;
 let secondaryStartToEnd; // this is S3T3
@@ -88,17 +84,15 @@ let remoteStream;
 // See
 //   https://developer.mozilla.org/en-US/docs/Web/API/Worker
 // for basic concepts.
-const worker = new Worker('js/worker.js', {name: 'E2EE worker', type: "module"});
+const worker = new Worker('js/worker.js', { name: 'E2EE worker', type: 'module' });
 
-
-const supportsSetCodecPreferences = window.RTCRtpTransceiver &&
-    'setCodecPreferences' in window.RTCRtpTransceiver.prototype;
+const supportsSetCodecPreferences =
+    window.RTCRtpTransceiver && 'setCodecPreferences' in window.RTCRtpTransceiver.prototype;
 
 let hasEnoughAPIs = !!window.RTCRtpScriptTransform;
 
 if (!hasEnoughAPIs) {
-    const supportsInsertableStreams =
-        !!RTCRtpSender.prototype.createEncodedStreams;
+    const supportsInsertableStreams = !!RTCRtpSender.prototype.createEncodedStreams;
 
     let supportsTransferableStreams = false;
     try {
@@ -112,8 +106,7 @@ if (!hasEnoughAPIs) {
 }
 
 if (!hasEnoughAPIs) {
-    banner.innerText = 'Your browser does not support WebRTC Encoded Transforms. ' +
-        'This sample will not work.';
+    banner.innerText = 'Your browser does not support WebRTC Encoded Transforms. ' + 'This sample will not work.';
     if (adapter.browserDetails.browser === 'chrome') {
         banner.innerText += ' Try with Enable experimental Web Platform features enabled from chrome://flags.';
     }
@@ -126,7 +119,6 @@ function gotStream(stream) {
     localStream = stream;
     callButton.disabled = false;
 }
-
 
 function gotRemoteStream(stream, videoElement) {
     // console.log('Received remote stream');
@@ -142,7 +134,7 @@ async function start() {
         video: {
             width: 1280,
             height: 720,
-        }
+        },
     };
     navigator.mediaDevices
         .getUserMedia(options)
@@ -153,18 +145,17 @@ async function start() {
         });
 
     try {
-
         let config = {
-            type: "webrtc",
+            type: 'webrtc',
             video: {
-                contentType: "video/av01.0.04M.08",
-                scalabilityMode: "S3T3",
+                contentType: 'video/av01.0.04M.08',
+                scalabilityMode: 'S3T3',
                 width: 1280,
                 height: 720,
                 bitrate: 10000,
                 framerate: 29.97,
-            }
-        }
+            },
+        };
 
         await navigator.mediaCapabilities.encodingInfo(config);
 
@@ -172,30 +163,30 @@ async function start() {
     } catch (e) {
         throw new Error(`Failed to configure WebRTC: ${e}`);
     }
-
 }
-
 
 // Here we want to decode the encoded video chunk
 function setupSenderTransform(sender, layered) {
     if (window.RTCRtpScriptTransform) {
-        sender.transform = new RTCRtpScriptTransform(worker, {operation: 'encode'});
+        sender.transform = new RTCRtpScriptTransform(worker, { operation: 'encode' });
         return;
     }
 
     const senderStreams = sender.createEncodedStreams();
-    const {readable, writable} = senderStreams;
-    worker.postMessage({
-        operation: `encode-layered-${layered}`,
-        readable,
-        writable,
-    }, [readable, writable]);
+    const { readable, writable } = senderStreams;
+    worker.postMessage(
+        {
+            operation: `encode-layered-${layered}`,
+            readable,
+            writable,
+        },
+        [readable, writable],
+    );
 }
-
 
 function setupReceiverTransform(receiver, layered) {
     if (window.RTCRtpScriptTransform) {
-        receiver.transform = new RTCRtpScriptTransform(worker, {operation: 'decode'});
+        receiver.transform = new RTCRtpScriptTransform(worker, { operation: 'decode' });
         return;
     }
 
@@ -203,26 +194,32 @@ function setupReceiverTransform(receiver, layered) {
     // https://developer.mozilla.org/en-US/docs/Web/API/RTCRtpReceiver and grep for `createEncodedStreams()`
     const receiverStreams = receiver.createEncodedStreams();
     // console.log(`receiverStreams`, receiverStreams);
-    const {readable, writable} = receiverStreams;
-    worker.postMessage({
-        operation: `decode-layered-${layered}`,
-        readable,
-        writable,
-    }, [readable, writable]);
+    const { readable, writable } = receiverStreams;
+    worker.postMessage(
+        {
+            operation: `decode-layered-${layered}`,
+            readable,
+            writable,
+        },
+        [readable, writable],
+    );
 }
 
-
-const mediaStreamTrackGenerator = new MediaStreamTrackGenerator({kind: 'video'});
+const mediaStreamTrackGenerator = new MediaStreamTrackGenerator({ kind: 'video' });
 const writable = mediaStreamTrackGenerator.writable;
 
-worker.postMessage({
-    operation: 'init', writable
-}, [writable]);
+worker.postMessage(
+    {
+        operation: 'init',
+        writable,
+    },
+    [writable],
+);
 
 const encodedL3T3Frames = new Map();
 const encodedS3T3Frames = new Map();
 
-worker.onmessage = ({data}) => {
+worker.onmessage = ({ data }) => {
     if (data.operation === 'track-ready') {
         video3.srcObject = new MediaStream([mediaStreamTrackGenerator]);
     }
@@ -244,7 +241,6 @@ worker.onmessage = ({data}) => {
 
             frameMap.set(timestamp, layers);
             updateEncodedFrame(timestamp, layers, layered);
-
         } else {
             frameMap.set(timestamp, [{
                 spatialIndex,
@@ -320,16 +316,24 @@ function appendEncodedFrame(timestamp, frames, layered) {
     frameEntry.setAttribute('id', `entry-${layered}-${timestamp}`);
     frameEntry.innerHTML = `
             <div><strong>Timestamp ${timestamp}:</strong></div>
-        <ul>
-            ${frames.map(f => `
-                <li style="background-color: ${f.type === 'delta' ? 'yellow' : 'lawngreen'};">
-                     <p>${JSON.stringify({
-        spatialIndex: f.spatialIndex,
-        temporalIndex: f.temporalIndex,
-        size: f.size,
-    }, null, 2)}</p> 
-                </li>
-            `).join('')}
+              <ul>
+                  ${frames
+                      .map(
+                          (f) => `
+                      <li style="background-color: ${f.type === 'delta' ? 'yellow' : 'lawngreen'};">
+                           <p>${JSON.stringify(
+                               {
+                                   spatialIndex: f.spatialIndex,
+                                   temporalIndex: f.temporalIndex,
+                                   size: f.size,
+                               },
+                               null,
+                               2,
+                           )}</p>
+                      </li>
+                  `,
+                      )
+                      .join('')}
         </ul>
     `;
 
@@ -340,30 +344,41 @@ async function call() {
     callButton.disabled = true;
     hangupButton.disabled = false;
 
-    startToEnd = new VideoPipe(localStream, true, true, e => {
-        setupReceiverTransform(e.receiver, true);
+    startToEnd = new VideoPipe(
+        localStream,
+        true,
+        true,
+        (e) => {
+            setupReceiverTransform(e.receiver, true);
 
-        if (!supportsSetCodecPreferences) {
-            throw new Error(`Codec is not supported`);
-        }
+            if (!supportsSetCodecPreferences) {
+                throw new Error(`Codec is not supported`);
+            }
 
-        gotRemoteStream(e.streams[0], video2);
-    }, 'L3T3');
-    startToEnd.pc1.getSenders().forEach(s => setupSenderTransform(s, true));
+            gotRemoteStream(e.streams[0], video2);
+        },
+        'L3T3',
+    );
+    startToEnd.pc1.getSenders().forEach((s) => setupSenderTransform(s, true));
     await startToEnd.negotiate();
 
-    secondaryStartToEnd = new VideoPipe(localStream, true, true, e => {
-        setupReceiverTransform(e.receiver, false);
+    secondaryStartToEnd = new VideoPipe(
+        localStream,
+        true,
+        true,
+        (e) => {
+            setupReceiverTransform(e.receiver, false);
 
-        if (!supportsSetCodecPreferences) {
-            throw new Error(`Codec is not supported`);
-        }
+            if (!supportsSetCodecPreferences) {
+                throw new Error(`Codec is not supported`);
+            }
 
-        gotRemoteStream(e.streams[0], video2a);
-    }, 'S3T3');
-    secondaryStartToEnd.pc1.getSenders().forEach(s => setupSenderTransform(s, false));
+            gotRemoteStream(e.streams[0], video2a);
+        },
+        'S3T3',
+    );
+    secondaryStartToEnd.pc1.getSenders().forEach((s) => setupSenderTransform(s, false));
     await secondaryStartToEnd.negotiate();
-
 
     // console.log('Video pipes created');
 }
@@ -377,4 +392,3 @@ function hangup() {
     hangupButton.disabled = true;
     callButton.disabled = false;
 }
-
