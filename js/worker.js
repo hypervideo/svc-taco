@@ -69,8 +69,8 @@ async function handleTransform(operation, readable, writable) {
     if (operation === 'encode-layered-true') {
         const transformer = new TransformStream({
             async transform(encodedFrame, controller) {
-                const { temporalIndex, spatialIndex, width, height } = encodedFrame.getMetadata();
-                const { timestamp, data, type } = encodedFrame;
+                const {temporalIndex, spatialIndex, width, height} = encodedFrame.getMetadata();
+                const {timestamp, data, type} = encodedFrame;
 
                 const size = data.byteLength;
 
@@ -93,8 +93,8 @@ async function handleTransform(operation, readable, writable) {
     } else if (operation === 'encode-layered-false') {
         const transformer = new TransformStream({
             async transform(encodedFrame, controller) {
-                const { temporalIndex, spatialIndex, width, height } = encodedFrame.getMetadata();
-                const { timestamp, data, type } = encodedFrame;
+                const {temporalIndex, spatialIndex, width, height} = encodedFrame.getMetadata();
+                const {timestamp, data, type} = encodedFrame;
 
                 const size = data.byteLength;
 
@@ -109,7 +109,7 @@ async function handleTransform(operation, readable, writable) {
                     type,
                 });
 
-                if (spatialIndex === 2) {
+                if (spatialIndex === 0) {
                     controller.enqueue(encodedFrame);
                 }
             },
@@ -119,8 +119,8 @@ async function handleTransform(operation, readable, writable) {
     } else if (operation === 'decode-layered-true') {
         const transformer = new TransformStream({
             async transform(encodedFrame, controller) {
-                const { temporalIndex, spatialIndex, width, height } = encodedFrame.getMetadata();
-                const { timestamp, data, type } = encodedFrame;
+                const {temporalIndex, spatialIndex, width, height} = encodedFrame.getMetadata();
+                const {timestamp, data, type} = encodedFrame;
 
                 if (temporalIndex < highestTemporalLayer && spatialIndex < highestSpatialLayer) {
                     // console.log("Decoding encodedChunk: ", {timestamp, temporalIndex, spatialIndex})
@@ -141,7 +141,7 @@ async function handleTransform(operation, readable, writable) {
     } else if (operation === 'decode-layered-false') {
         const transformer = new TransformStream({
             async transform(encodedFrame, controller) {
-                const { temporalIndex, spatialIndex } = encodedFrame.getMetadata();
+                const {temporalIndex, spatialIndex} = encodedFrame.getMetadata();
 
                 if (spatialIndex === 2) {
                     controller.enqueue(encodedFrame);
@@ -153,8 +153,8 @@ async function handleTransform(operation, readable, writable) {
 }
 
 // Handler for messages, including transferable streams.
-onmessage = async ({ data }) => {
-    let { operation } = data;
+onmessage = async ({data}) => {
+    let {operation} = data;
 
     if (operation === 'init') {
         writer = data.writable.getWriter();
@@ -170,12 +170,12 @@ onmessage = async ({ data }) => {
         operation === 'decode-layered-true' ||
         operation === 'decode-layered-false'
     ) {
-        let { readable, writable } = data;
+        let {readable, writable} = data;
         return await handleTransform(operation, readable, writable);
     }
 
     if (operation === 'layer-change') {
-        let { temporal, layer } = data;
+        let {temporal, layer} = data;
 
         if (temporal) {
             highestTemporalLayer = layer;

@@ -320,7 +320,7 @@ async function call() {
 
             gotRemoteStream(e.streams[0], video2a);
         },
-        'S3T3',
+        'L1T3',
     );
     secondaryStartToEnd.pc1.getSenders().forEach((s) => setupSenderTransform(s, false));
     await secondaryStartToEnd.negotiate();
