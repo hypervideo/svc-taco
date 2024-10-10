@@ -253,6 +253,14 @@ worker.onmessage = ({data}) => {
                 byteStr += byteArray[idx].toString(16).padStart(2, '0') + ' ';
             }
 
+            let obuHeader = parseOBUHeader(byteArray[0]);
+
+            if (obuHeader.extensionFlag) {
+                obuHeader.extension = parseOBUExtensionHeader(byteArray[1]);
+            }
+
+            console.log("OBU Header", obuHeader);
+
             bytes.innerHTML = `
                     <div style="padding-bottom: 8px;">
                         ${timestamp}, spatial index: ${spatialIndex}, temporal index: ${temporalIndex} 
