@@ -1,7 +1,6 @@
 'use strict';
 
-
-import init, {parse_obu} from "../pkg/av1parser.js";
+import init, {parseObu} from "../pkg/av1parser.js";
 
 /* global RTCRtpScriptTransform */
 /* global VideoPipe */
@@ -256,14 +255,10 @@ worker.onmessage = ({data}) => {
                 byteStr += byteArray[idx].toString(16).padStart(2, '0') + ' ';
             }
 
-            try {
-                await init();
-                const obu = parse_obu(byteArray, byteArray.byteLength);
-                console.log("OBU", obu);
+            await init();
 
-            } catch (e) {
-                throw new Error(`Failed to parse obv: `, e);
-            }
+            console.log(`parsing byte array`);
+            parseObu(byteArray);
 
 
             bytes.innerHTML = `
