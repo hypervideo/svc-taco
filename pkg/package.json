@@ -1,0 +1,19 @@
+{
+  "name": "av1parser",
+  "type": "module",
+  "collaborators": [
+    "yoh <kawasaki.liamg@gmail.com>"
+  ],
+  "description": "AV1 Bitstream Parser",
+  "version": "0.2.1",
+  "files": [
+    "av1parser_bg.wasm",
+    "av1parser.js",
+    "av1parser.d.ts"
+  ],
+  "main": "av1parser.js",
+  "types": "av1parser.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}
