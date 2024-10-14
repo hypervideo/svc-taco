@@ -11,12 +11,16 @@
         {
           devShells.default = pkgs.mkShell {
             packages = with pkgs; [
+              rustc
               go
               gopls
               just
               nodePackages.prettier
               fd
               nodejs
+              meson
+              ninja
+              libiconv
             ];
           };
         }
