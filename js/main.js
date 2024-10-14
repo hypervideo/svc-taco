@@ -1,8 +1,5 @@
 'use strict';
 
-
-import init, {parse_obu} from "../pkg/av1parser.js";
-
 /* global RTCRtpScriptTransform */
 /* global VideoPipe */
 
@@ -245,7 +242,7 @@ worker.onmessage = ({data}) => {
         }, null, 2)
 
         frameLi.appendChild(p);
-        frameLi.addEventListener('click', async (e) => {
+        frameLi.addEventListener('click', (e) => {
             e.preventDefault();
 
             const byteArray = new Uint8Array(frameData);
@@ -256,15 +253,13 @@ worker.onmessage = ({data}) => {
                 byteStr += byteArray[idx].toString(16).padStart(2, '0') + ' ';
             }
 
-            try {
-                await init();
-                const obu = parse_obu(byteArray, byteArray.byteLength);
-                console.log("OBU", obu);
+            let obuHeader = parseOBUHeader(byteArray[0]);
 
-            } catch (e) {
-                throw new Error(`Failed to parse obv: `, e);
+            if (obuHeader.extensionFlag) {
+                obuHeader.extension = parseOBUExtensionHeader(byteArray[1]);
             }
 
+            console.log("OBU Header", obuHeader);
 
             bytes.innerHTML = `
                     <div style="padding-bottom: 8px;">
