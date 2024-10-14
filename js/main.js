@@ -250,10 +250,9 @@ worker.onmessage = ({data}) => {
             let byteStr = '';
 
             for (let idx = 0; idx < byteArray.length; idx++) {
-                byteStr += '0x' + byteArray[idx].toString(16).padStart(2, '0') + ', ';
+                byteStr += byteArray[idx].toString(16).padStart(2, '0') + ' ';
             }
 
-            byteStr = "[" + byteStr + "]"
 
             let obuHeader = parseOBUHeader(byteArray[0]);
 
