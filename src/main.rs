@@ -5,10 +5,13 @@ extern crate libdav1d_sys;
 use clap::Parser;
 use eyre::{eyre, Ok, Result};
 use libdav1d_sys::{
-    dav1d_parse_sequence_header, Dav1dAdaptiveBoolean, Dav1dChromaSamplePosition,
-    Dav1dColorPrimaries, Dav1dMatrixCoefficients, Dav1dPixelLayout, Dav1dSequenceHeader,
-    Dav1dSequenceHeader_Dav1dSequenceHeaderOperatingParameterInfo,
-    Dav1dSequenceHeader_Dav1dSequenceHeaderOperatingPoint, Dav1dTransferCharacteristics,
+    dav1d_data_create, dav1d_data_wrap, dav1d_default_settings, DAV1D_ERR, dav1d_get_picture,
+    dav1d_open, dav1d_parse_sequence_header, dav1d_send_data, Dav1dAdaptiveBoolean,
+    Dav1dChromaSamplePosition, Dav1dColorPrimaries, Dav1dContext, Dav1dDecodeFrameType, Dav1dLogger,
+    Dav1dMatrixCoefficients, Dav1dPicAllocator, Dav1dPicture, Dav1dPixelLayout,
+    Dav1dSequenceHeader,
+    Dav1dSequenceHeader_Dav1dSequenceHeaderOperatingParameterInfo, Dav1dSequenceHeader_Dav1dSequenceHeaderOperatingPoint,
+    Dav1dSettings, Dav1dTransferCharacteristics,
 };
 
 #[derive(Parser, Debug)]
@@ -25,529 +28,65 @@ fn parse_hex_string(data: &str) -> Vec<u8> {
 }
 
 fn main() -> Result<()> {
-    let mut out = Dav1dSequenceHeader {
-        profile: 0,
-        max_width: 0,
-        max_height: 0,
-        layout: Dav1dPixelLayout::DAV1D_PIXEL_LAYOUT_I400,
-        pri: Dav1dColorPrimaries::DAV1D_COLOR_PRI_BT709,
-        trc: Dav1dTransferCharacteristics::DAV1D_TRC_BT709,
-        mtrx: Dav1dMatrixCoefficients::DAV1D_MC_IDENTITY,
-        chr: Dav1dChromaSamplePosition::DAV1D_CHR_UNKNOWN,
-        hbd: 0,
-        color_range: 0,
-        num_operating_points: 0,
-        operating_points: [
-            Dav1dSequenceHeader_Dav1dSequenceHeaderOperatingPoint {
-                major_level: 0,
-                minor_level: 0,
-                initial_display_delay: 0,
-                idc: 0,
-                tier: 0,
-                decoder_model_param_present: 0,
-                display_model_param_present: 0,
-            },
-            Dav1dSequenceHeader_Dav1dSequenceHeaderOperatingPoint {
-                major_level: 0,
-                minor_level: 0,
-                initial_display_delay: 0,
-                idc: 0,
-                tier: 0,
-                decoder_model_param_present: 0,
-                display_model_param_present: 0,
-            },
-            Dav1dSequenceHeader_Dav1dSequenceHeaderOperatingPoint {
-                major_level: 0,
-                minor_level: 0,
-                initial_display_delay: 0,
-                idc: 0,
-                tier: 0,
-                decoder_model_param_present: 0,
-                display_model_param_present: 0,
-            },
-            Dav1dSequenceHeader_Dav1dSequenceHeaderOperatingPoint {
-                major_level: 0,
-                minor_level: 0,
-                initial_display_delay: 0,
-                idc: 0,
-                tier: 0,
-                decoder_model_param_present: 0,
-                display_model_param_present: 0,
-            },
-            Dav1dSequenceHeader_Dav1dSequenceHeaderOperatingPoint {
-                major_level: 0,
-                minor_level: 0,
-                initial_display_delay: 0,
-                idc: 0,
-                tier: 0,
-                decoder_model_param_present: 0,
-                display_model_param_present: 0,
-            },
-            Dav1dSequenceHeader_Dav1dSequenceHeaderOperatingPoint {
-                major_level: 0,
-                minor_level: 0,
-                initial_display_delay: 0,
-                idc: 0,
-                tier: 0,
-                decoder_model_param_present: 0,
-                display_model_param_present: 0,
-            },
-            Dav1dSequenceHeader_Dav1dSequenceHeaderOperatingPoint {
-                major_level: 0,
-                minor_level: 0,
-                initial_display_delay: 0,
-                idc: 0,
-                tier: 0,
-                decoder_model_param_present: 0,
-                display_model_param_present: 0,
-            },
-            Dav1dSequenceHeader_Dav1dSequenceHeaderOperatingPoint {
-                major_level: 0,
-                minor_level: 0,
-                initial_display_delay: 0,
-                idc: 0,
-                tier: 0,
-                decoder_model_param_present: 0,
-                display_model_param_present: 0,
-            },
-            Dav1dSequenceHeader_Dav1dSequenceHeaderOperatingPoint {
-                major_level: 0,
-                minor_level: 0,
-                initial_display_delay: 0,
-                idc: 0,
-                tier: 0,
-                decoder_model_param_present: 0,
-                display_model_param_present: 0,
-            },
-            Dav1dSequenceHeader_Dav1dSequenceHeaderOperatingPoint {
-                major_level: 0,
-                minor_level: 0,
-                initial_display_delay: 0,
-                idc: 0,
-                tier: 0,
-                decoder_model_param_present: 0,
-                display_model_param_present: 0,
-            },
-            Dav1dSequenceHeader_Dav1dSequenceHeaderOperatingPoint {
-                major_level: 0,
-                minor_level: 0,
-                initial_display_delay: 0,
-                idc: 0,
-                tier: 0,
-                decoder_model_param_present: 0,
-                display_model_param_present: 0,
-            },
-            Dav1dSequenceHeader_Dav1dSequenceHeaderOperatingPoint {
-                major_level: 0,
-                minor_level: 0,
-                initial_display_delay: 0,
-                idc: 0,
-                tier: 0,
-                decoder_model_param_present: 0,
-                display_model_param_present: 0,
-            },
-            Dav1dSequenceHeader_Dav1dSequenceHeaderOperatingPoint {
-                major_level: 0,
-                minor_level: 0,
-                initial_display_delay: 0,
-                idc: 0,
-                tier: 0,
-                decoder_model_param_present: 0,
-                display_model_param_present: 0,
-            },
-            Dav1dSequenceHeader_Dav1dSequenceHeaderOperatingPoint {
-                major_level: 0,
-                minor_level: 0,
-                initial_display_delay: 0,
-                idc: 0,
-                tier: 0,
-                decoder_model_param_present: 0,
-                display_model_param_present: 0,
-            },
-            Dav1dSequenceHeader_Dav1dSequenceHeaderOperatingPoint {
-                major_level: 0,
-                minor_level: 0,
-                initial_display_delay: 0,
-                idc: 0,
-                tier: 0,
-                decoder_model_param_present: 0,
-                display_model_param_present: 0,
-            },
-            Dav1dSequenceHeader_Dav1dSequenceHeaderOperatingPoint {
-                major_level: 0,
-                minor_level: 0,
-                initial_display_delay: 0,
-                idc: 0,
-                tier: 0,
-                decoder_model_param_present: 0,
-                display_model_param_present: 0,
-            },
-            Dav1dSequenceHeader_Dav1dSequenceHeaderOperatingPoint {
-                major_level: 0,
-                minor_level: 0,
-                initial_display_delay: 0,
-                idc: 0,
-                tier: 0,
-                decoder_model_param_present: 0,
-                display_model_param_present: 0,
-            },
-            Dav1dSequenceHeader_Dav1dSequenceHeaderOperatingPoint {
-                major_level: 0,
-                minor_level: 0,
-                initial_display_delay: 0,
-                idc: 0,
-                tier: 0,
-                decoder_model_param_present: 0,
-                display_model_param_present: 0,
-            },
-            Dav1dSequenceHeader_Dav1dSequenceHeaderOperatingPoint {
-                major_level: 0,
-                minor_level: 0,
-                initial_display_delay: 0,
-                idc: 0,
-                tier: 0,
-                decoder_model_param_present: 0,
-                display_model_param_present: 0,
-            },
-            Dav1dSequenceHeader_Dav1dSequenceHeaderOperatingPoint {
-                major_level: 0,
-                minor_level: 0,
-                initial_display_delay: 0,
-                idc: 0,
-                tier: 0,
-                decoder_model_param_present: 0,
-                display_model_param_present: 0,
-            },
-            Dav1dSequenceHeader_Dav1dSequenceHeaderOperatingPoint {
-                major_level: 0,
-                minor_level: 0,
-                initial_display_delay: 0,
-                idc: 0,
-                tier: 0,
-                decoder_model_param_present: 0,
-                display_model_param_present: 0,
-            },
-            Dav1dSequenceHeader_Dav1dSequenceHeaderOperatingPoint {
-                major_level: 0,
-                minor_level: 0,
-                initial_display_delay: 0,
-                idc: 0,
-                tier: 0,
-                decoder_model_param_present: 0,
-                display_model_param_present: 0,
-            },
-            Dav1dSequenceHeader_Dav1dSequenceHeaderOperatingPoint {
-                major_level: 0,
-                minor_level: 0,
-                initial_display_delay: 0,
-                idc: 0,
-                tier: 0,
-                decoder_model_param_present: 0,
-                display_model_param_present: 0,
-            },
-            Dav1dSequenceHeader_Dav1dSequenceHeaderOperatingPoint {
-                major_level: 0,
-                minor_level: 0,
-                initial_display_delay: 0,
-                idc: 0,
-                tier: 0,
-                decoder_model_param_present: 0,
-                display_model_param_present: 0,
-            },
-            Dav1dSequenceHeader_Dav1dSequenceHeaderOperatingPoint {
-                major_level: 0,
-                minor_level: 0,
-                initial_display_delay: 0,
-                idc: 0,
-                tier: 0,
-                decoder_model_param_present: 0,
-                display_model_param_present: 0,
-            },
-            Dav1dSequenceHeader_Dav1dSequenceHeaderOperatingPoint {
-                major_level: 0,
-                minor_level: 0,
-                initial_display_delay: 0,
-                idc: 0,
-                tier: 0,
-                decoder_model_param_present: 0,
-                display_model_param_present: 0,
-            },
-            Dav1dSequenceHeader_Dav1dSequenceHeaderOperatingPoint {
-                major_level: 0,
-                minor_level: 0,
-                initial_display_delay: 0,
-                idc: 0,
-                tier: 0,
-                decoder_model_param_present: 0,
-                display_model_param_present: 0,
-            },
-            Dav1dSequenceHeader_Dav1dSequenceHeaderOperatingPoint {
-                major_level: 0,
-                minor_level: 0,
-                initial_display_delay: 0,
-                idc: 0,
-                tier: 0,
-                decoder_model_param_present: 0,
-                display_model_param_present: 0,
-            },
-            Dav1dSequenceHeader_Dav1dSequenceHeaderOperatingPoint {
-                major_level: 0,
-                minor_level: 0,
-                initial_display_delay: 0,
-                idc: 0,
-                tier: 0,
-                decoder_model_param_present: 0,
-                display_model_param_present: 0,
-            },
-            Dav1dSequenceHeader_Dav1dSequenceHeaderOperatingPoint {
-                major_level: 0,
-                minor_level: 0,
-                initial_display_delay: 0,
-                idc: 0,
-                tier: 0,
-                decoder_model_param_present: 0,
-                display_model_param_present: 0,
-            },
-            Dav1dSequenceHeader_Dav1dSequenceHeaderOperatingPoint {
-                major_level: 0,
-                minor_level: 0,
-                initial_display_delay: 0,
-                idc: 0,
-                tier: 0,
-                decoder_model_param_present: 0,
-                display_model_param_present: 0,
-            },
-            Dav1dSequenceHeader_Dav1dSequenceHeaderOperatingPoint {
-                major_level: 0,
-                minor_level: 0,
-                initial_display_delay: 0,
-                idc: 0,
-                tier: 0,
-                decoder_model_param_present: 0,
-                display_model_param_present: 0,
-            },
-        ],
-        still_picture: 0,
-        reduced_still_picture_header: 0,
-        timing_info_present: 0,
-        num_units_in_tick: 0,
-        time_scale: 0,
-        equal_picture_interval: 0,
-        num_ticks_per_picture: 0,
-        decoder_model_info_present: 0,
-        encoder_decoder_buffer_delay_length: 0,
-        num_units_in_decoding_tick: 0,
-        buffer_removal_delay_length: 0,
-        frame_presentation_delay_length: 0,
-        display_model_info_present: 0,
-        width_n_bits: 0,
-        height_n_bits: 0,
-        frame_id_numbers_present: 0,
-        delta_frame_id_n_bits: 0,
-        frame_id_n_bits: 0,
-        sb128: 0,
-        filter_intra: 0,
-        intra_edge_filter: 0,
-        inter_intra: 0,
-        masked_compound: 0,
-        warped_motion: 0,
-        dual_filter: 0,
-        order_hint: 0,
-        jnt_comp: 0,
-        ref_frame_mvs: 0,
-        screen_content_tools: Dav1dAdaptiveBoolean::DAV1D_OFF,
-        force_integer_mv: Dav1dAdaptiveBoolean::DAV1D_OFF,
-        order_hint_n_bits: 0,
-        super_res: 0,
-        cdef: 0,
-        restoration: 0,
-        ss_hor: 0,
-        ss_ver: 0,
-        monochrome: 0,
-        color_description_present: 0,
-        separate_uv_delta_q: 0,
-        film_grain_present: 0,
-        operating_parameter_info: [
-            Dav1dSequenceHeader_Dav1dSequenceHeaderOperatingParameterInfo {
-                decoder_buffer_delay: 0,
-                encoder_buffer_delay: 0,
-                low_delay_mode: 0,
-            },
-            Dav1dSequenceHeader_Dav1dSequenceHeaderOperatingParameterInfo {
-                decoder_buffer_delay: 0,
-                encoder_buffer_delay: 0,
-                low_delay_mode: 0,
-            },
-            Dav1dSequenceHeader_Dav1dSequenceHeaderOperatingParameterInfo {
-                decoder_buffer_delay: 0,
-                encoder_buffer_delay: 0,
-                low_delay_mode: 0,
-            },
-            Dav1dSequenceHeader_Dav1dSequenceHeaderOperatingParameterInfo {
-                decoder_buffer_delay: 0,
-                encoder_buffer_delay: 0,
-                low_delay_mode: 0,
-            },
-            Dav1dSequenceHeader_Dav1dSequenceHeaderOperatingParameterInfo {
-                decoder_buffer_delay: 0,
-                encoder_buffer_delay: 0,
-                low_delay_mode: 0,
-            },
-            Dav1dSequenceHeader_Dav1dSequenceHeaderOperatingParameterInfo {
-                decoder_buffer_delay: 0,
-                encoder_buffer_delay: 0,
-                low_delay_mode: 0,
-            },
-            Dav1dSequenceHeader_Dav1dSequenceHeaderOperatingParameterInfo {
-                decoder_buffer_delay: 0,
-                encoder_buffer_delay: 0,
-                low_delay_mode: 0,
-            },
-            Dav1dSequenceHeader_Dav1dSequenceHeaderOperatingParameterInfo {
-                decoder_buffer_delay: 0,
-                encoder_buffer_delay: 0,
-                low_delay_mode: 0,
-            },
-            Dav1dSequenceHeader_Dav1dSequenceHeaderOperatingParameterInfo {
-                decoder_buffer_delay: 0,
-                encoder_buffer_delay: 0,
-                low_delay_mode: 0,
-            },
-            Dav1dSequenceHeader_Dav1dSequenceHeaderOperatingParameterInfo {
-                decoder_buffer_delay: 0,
-                encoder_buffer_delay: 0,
-                low_delay_mode: 0,
-            },
-            Dav1dSequenceHeader_Dav1dSequenceHeaderOperatingParameterInfo {
-                decoder_buffer_delay: 0,
-                encoder_buffer_delay: 0,
-                low_delay_mode: 0,
-            },
-            Dav1dSequenceHeader_Dav1dSequenceHeaderOperatingParameterInfo {
-                decoder_buffer_delay: 0,
-                encoder_buffer_delay: 0,
-                low_delay_mode: 0,
-            },
-            Dav1dSequenceHeader_Dav1dSequenceHeaderOperatingParameterInfo {
-                decoder_buffer_delay: 0,
-                encoder_buffer_delay: 0,
-                low_delay_mode: 0,
-            },
-            Dav1dSequenceHeader_Dav1dSequenceHeaderOperatingParameterInfo {
-                decoder_buffer_delay: 0,
-                encoder_buffer_delay: 0,
-                low_delay_mode: 0,
-            },
-            Dav1dSequenceHeader_Dav1dSequenceHeaderOperatingParameterInfo {
-                decoder_buffer_delay: 0,
-                encoder_buffer_delay: 0,
-                low_delay_mode: 0,
-            },
-            Dav1dSequenceHeader_Dav1dSequenceHeaderOperatingParameterInfo {
-                decoder_buffer_delay: 0,
-                encoder_buffer_delay: 0,
-                low_delay_mode: 0,
-            },
-            Dav1dSequenceHeader_Dav1dSequenceHeaderOperatingParameterInfo {
-                decoder_buffer_delay: 0,
-                encoder_buffer_delay: 0,
-                low_delay_mode: 0,
-            },
-            Dav1dSequenceHeader_Dav1dSequenceHeaderOperatingParameterInfo {
-                decoder_buffer_delay: 0,
-                encoder_buffer_delay: 0,
-                low_delay_mode: 0,
-            },
-            Dav1dSequenceHeader_Dav1dSequenceHeaderOperatingParameterInfo {
-                decoder_buffer_delay: 0,
-                encoder_buffer_delay: 0,
-                low_delay_mode: 0,
-            },
-            Dav1dSequenceHeader_Dav1dSequenceHeaderOperatingParameterInfo {
-                decoder_buffer_delay: 0,
-                encoder_buffer_delay: 0,
-                low_delay_mode: 0,
-            },
-            Dav1dSequenceHeader_Dav1dSequenceHeaderOperatingParameterInfo {
-                decoder_buffer_delay: 0,
-                encoder_buffer_delay: 0,
-                low_delay_mode: 0,
-            },
-            Dav1dSequenceHeader_Dav1dSequenceHeaderOperatingParameterInfo {
-                decoder_buffer_delay: 0,
-                encoder_buffer_delay: 0,
-                low_delay_mode: 0,
-            },
-            Dav1dSequenceHeader_Dav1dSequenceHeaderOperatingParameterInfo {
-                decoder_buffer_delay: 0,
-                encoder_buffer_delay: 0,
-                low_delay_mode: 0,
-            },
-            Dav1dSequenceHeader_Dav1dSequenceHeaderOperatingParameterInfo {
-                decoder_buffer_delay: 0,
-                encoder_buffer_delay: 0,
-                low_delay_mode: 0,
-            },
-            Dav1dSequenceHeader_Dav1dSequenceHeaderOperatingParameterInfo {
-                decoder_buffer_delay: 0,
-                encoder_buffer_delay: 0,
-                low_delay_mode: 0,
-            },
-            Dav1dSequenceHeader_Dav1dSequenceHeaderOperatingParameterInfo {
-                decoder_buffer_delay: 0,
-                encoder_buffer_delay: 0,
-                low_delay_mode: 0,
-            },
-            Dav1dSequenceHeader_Dav1dSequenceHeaderOperatingParameterInfo {
-                decoder_buffer_delay: 0,
-                encoder_buffer_delay: 0,
-                low_delay_mode: 0,
-            },
-            Dav1dSequenceHeader_Dav1dSequenceHeaderOperatingParameterInfo {
-                decoder_buffer_delay: 0,
-                encoder_buffer_delay: 0,
-                low_delay_mode: 0,
-            },
-            Dav1dSequenceHeader_Dav1dSequenceHeaderOperatingParameterInfo {
-                decoder_buffer_delay: 0,
-                encoder_buffer_delay: 0,
-                low_delay_mode: 0,
-            },
-            Dav1dSequenceHeader_Dav1dSequenceHeaderOperatingParameterInfo {
-                decoder_buffer_delay: 0,
-                encoder_buffer_delay: 0,
-                low_delay_mode: 0,
-            },
-            Dav1dSequenceHeader_Dav1dSequenceHeaderOperatingParameterInfo {
-                decoder_buffer_delay: 0,
-                encoder_buffer_delay: 0,
-                low_delay_mode: 0,
-            },
-            Dav1dSequenceHeader_Dav1dSequenceHeaderOperatingParameterInfo {
-                decoder_buffer_delay: 0,
-                encoder_buffer_delay: 0,
-                low_delay_mode: 0,
-            },
-        ],
-    };
+    let mut settings: Dav1dSettings = unsafe { std::mem::zeroed() };
+    unsafe {
+        dav1d_default_settings(&mut settings);
+    }
+
+    let mut context: *mut Dav1dContext = std::ptr::null_mut();
+
+    let result = unsafe { dav1d_open(&mut context, &settings) };
+
+    if result != 0 {
+        return Err(eyre!("Failed to open decoder"));
+    }
 
     let Args { data } = Args::parse();
 
+    let mut david_data = unsafe { std::mem::zeroed() };
     let data = parse_hex_string(&data);
 
-    let result = unsafe {
-        dav1d_parse_sequence_header(
-            &mut out as *mut Dav1dSequenceHeader,
-            data.as_ptr(),
-            data.len(),
-        )
-    };
+    let create_result = unsafe { dav1d_data_create(&mut david_data, data.len()) };
 
-    if result != 0 {
-        return Err(eyre!("Received parsing error {}", result));
+    if create_result.is_null() {
+        return Err(eyre!("Failed to create Dav1d data"));
     }
 
-    println!("{:#?}", out);
+    unsafe { std::ptr::copy_nonoverlapping(data.as_ptr(), david_data.data as *mut u8, data.len()) }
+
+    let send_result = unsafe { dav1d_send_data(context, &mut david_data) };
+
+    if send_result != 0 {
+        return Err(eyre!("Failed to send data to decoder"));
+    }
+
+    loop {
+        let mut picture: Dav1dPicture = unsafe { std::mem::zeroed() };
+
+        let picture_result = unsafe { dav1d_get_picture(context, &mut picture) };
+
+        if picture_result != 0 {
+            return Err(eyre!("Failed to get picture"));
+        }
+
+        if picture.seq_hdr.is_null() || picture.frame_hdr.is_null() {
+            return Err(eyre!("Parsed headers are null"));
+        }
+
+        let sequence_header = unsafe { &*picture.seq_hdr };
+        let frame_header = unsafe { &*picture.frame_hdr };
+
+        println!("{:#?}", sequence_header);
+
+        println!("\nFrame Header:");
+        println!("  Frame type: {:?}", frame_header.frame_type);
+        println!("  Frame width: {:?}", frame_header.width);
+        println!("  Frame height: {:?}", frame_header.height);
+        println!("  Frame temporal: {:?}", frame_header.temporal_id);
+        println!("  Frame spatial: {:?}", frame_header.spatial_id);
+        println!("  Show frame: {}", frame_header.show_frame);
+        println!("  Showable frame: {}", frame_header.showable_frame);
+    }
 
     Ok(())
 }
