@@ -17,7 +17,6 @@ use libdav1d_sys::{
 #[derive(Parser, Debug)]
 #[command(version, about, long_about=None)]
 struct Args {
-    #[arg(long)]
     data: String,
 }
 
