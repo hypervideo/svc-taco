@@ -113,11 +113,33 @@ if (!hasEnoughAPIs) {
     startButton.disabled = true;
 }
 
+let mediaTimestamp;
+
 function gotStream(stream) {
     // console.log('Received local stream');
     video1.srcObject = stream;
     localStream = stream;
     callButton.disabled = false;
+
+
+    let first = true;
+
+    let firstVideoTrack = stream.getVideoTracks()[0];
+
+    const mediaTrackProcessor = new MediaStreamTrackProcessor({track: firstVideoTrack});
+    const reader = mediaTrackProcessor.readable.getReader();
+    reader.read().then(({done, value}) => {
+        if (done) {
+            return;
+        }
+
+        if (first) {
+            mediaTimestamp = value.timestamp;
+            console.log("media timestamp: ", mediaTimestamp);
+            first = false;
+        }
+
+    })
 }
 
 function gotRemoteStream(stream, videoElement) {
