@@ -74,6 +74,8 @@ async function handleTransform(operation, readable, writable) {
 
                 const size = data.byteLength;
 
+                console.log(`layered`, {timestamp, spatialIndex, temporalIndex, size, type});
+
                 postMessage({
                     operation: 'encoded-frame',
                     layered: true,

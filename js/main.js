@@ -165,7 +165,6 @@ async function start() {
     }
 }
 
-// Here we want to decode the encoded video chunk
 function setupSenderTransform(sender, layered) {
     if (window.RTCRtpScriptTransform) {
         sender.transform = new RTCRtpScriptTransform(worker, {operation: 'encode'});

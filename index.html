@@ -122,21 +122,17 @@
 <div>
     <p>
         *There are actually two remote computer to peer connections. One connection uses the scalability mode
-        <code>L3T3</code> to encode video frames. The other uses <code>S3T3</code>. The WebRTC receiver video
+        <code>L3T3</code> to encode video frames. The other uses <code>L1T3</code>. The WebRTC receiver video
         frame above uses the former scalability mode.
     </p>
-    <p>
-        <code>L3T3</code> and <code>S3T3</code> both have three spatial layers and three temporal layers.
-        <code>L3T3</code> chunks depend on lower layers while <code>S3T3</code> chunks have no inter-layer
-        dependency, also known as simulcast.
-    </p>
+
 
     <p>Key frames are green, delta frames are yellow.</p>
 </div>
 <div id="layers">
     <div style="min-width: 30em; display: flex; margin-right: 3em">
         <div style="margin-right: 8px">
-            S3T3 Encoded Frames
+            L1T3 Encoded Frames
             <ul id="s3t3-entries"></ul>
         </div>
         <div>
@@ -148,7 +144,7 @@
         <div>Byte Content</div>
         <div style="display: flex">
             <div style="min-width: 10em; margin-right: 6em">
-                S3T3
+                L1T3
                 <div id="s3t3-frame-bytes" style="max-width: 40em"></div>
             </div>
             <div>
@@ -162,6 +158,5 @@
 <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
 <script src="js/videopipe.js"></script>
 <script async src="js/main.js"></script>
-<script src="js/obu.js"></script>
 </body>
 </html>
