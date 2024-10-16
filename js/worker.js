@@ -65,12 +65,22 @@ initializeDecoder();
 let highestSpatialLayer = 3,
     highestTemporalLayer = 3;
 
+let firstChunkTimestamp = null;
+
 async function handleTransform(operation, readable, writable) {
     if (operation === 'encode-layered-true') {
         const transformer = new TransformStream({
             async transform(encodedFrame, controller) {
                 const {temporalIndex, spatialIndex, width, height} = encodedFrame.getMetadata();
                 const {timestamp, data, type} = encodedFrame;
+
+
+                if (!firstChunkTimestamp) {
+                    firstChunkTimestamp = timestamp;
+                }
+
+
+                const delta = timestamp - firstChunkTimestamp;
 
                 const size = data.byteLength;
 
@@ -85,6 +95,7 @@ async function handleTransform(operation, readable, writable) {
                     frameData: data,
                     size,
                     type,
+                    delta,
                 });
 
                 controller.enqueue(encodedFrame);
