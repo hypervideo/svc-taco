@@ -66,6 +66,7 @@ let highestSpatialLayer = 3,
     highestTemporalLayer = 3;
 
 let firstChunkTimestamp = null;
+let firstChunkSecondaryTimestamp = null;
 
 async function handleTransform(operation, readable, writable) {
     if (operation === 'encode-layered-true') {
@@ -81,7 +82,6 @@ async function handleTransform(operation, readable, writable) {
 
 
                 const delta = timestamp - firstChunkTimestamp;
-
                 const size = data.byteLength;
 
                 console.log(`layered`, {timestamp, spatialIndex, temporalIndex, size, type});
@@ -109,7 +109,14 @@ async function handleTransform(operation, readable, writable) {
                 const {temporalIndex, spatialIndex, width, height} = encodedFrame.getMetadata();
                 const {timestamp, data, type} = encodedFrame;
 
+                if (!firstChunkTimestamp) {
+                    firstChunkTimestamp = timestamp;
+                }
+
+
+                const delta = timestamp - firstChunkTimestamp;
                 const size = data.byteLength;
+
 
                 postMessage({
                     operation: 'encoded-frame',
@@ -120,6 +127,7 @@ async function handleTransform(operation, readable, writable) {
                     frameData: data,
                     size,
                     type,
+                    delta,
                 });
 
                 if (spatialIndex === 0) {

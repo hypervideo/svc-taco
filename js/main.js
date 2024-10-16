@@ -238,23 +238,27 @@ worker.postMessage(
 );
 
 
+let previousTimestamp = null, previousSecondaryTimestamp = null;
+
 worker.onmessage = ({data}) => {
     if (data.operation === 'track-ready') {
         video3.srcObject = new MediaStream([mediaStreamTrackGenerator]);
     }
 
     if (data.operation === 'encoded-frame') {
-        const {layered, timestamp, spatialIndex, temporalIndex, size, type, frameData} = data;
+        let {layered, timestamp, spatialIndex, temporalIndex, size, type, frameData, delta} = data;
         let bytes = layered ? bytesL3T3 : bytesS3T3;
+        let prevTimestamp = layered ? previousTimestamp : previousSecondaryTimestamp;
 
+        timestamp = firstMediaTimestamp + delta;
 
-        if (layered) {
-            const {delta} = data;
-            let mediaTimestamp = firstMediaTimestamp + delta;
-
-            // console.log("media timestamp", mediaTimestamp);
+        if (!prevTimestamp) {
+            prevTimestamp = timestamp;
         }
 
+        let timeDurationSinceLastFrame = timestamp - prevTimestamp;
+
+        layered ? previousTimestamp = timestamp : previousSecondaryTimestamp = timestamp;
 
         const timestampId = `${layered}-${timestamp}`;
         const timestampLi = document.getElementById(timestampId);
@@ -268,11 +272,12 @@ worker.onmessage = ({data}) => {
         p.textContent = JSON.stringify({
             spatialIndex,
             temporalIndex,
+            duration: timeDurationSinceLastFrame,
             size,
         }, null, 2)
 
         frameLi.appendChild(p);
-        frameLi.addEventListener('click', (e) => {
+        frameLi.addEventListener('click', async (e) => {
             e.preventDefault();
 
             const byteArray = new Uint8Array(frameData);
@@ -282,6 +287,14 @@ worker.onmessage = ({data}) => {
             for (let idx = 0; idx < byteArray.length; idx++) {
                 byteStr += byteArray[idx].toString(16).padStart(2, '0') + ' ';
             }
+
+
+            try {
+                await navigator.clipboard.writeText(byteStr);
+            } catch (e) {
+                console.error("Failed to copy byte str to clipboard", e);
+            }
+
 
             bytes.innerHTML = `
                     <div style="padding-bottom: 8px;">
@@ -360,8 +373,6 @@ async function call() {
 
 function hangup() {
     // console.log('Ending call');
-
-    console.log(encodedL3T3Frames);
     startToEnd.close();
     secondaryStartToEnd.close();
     hangupButton.disabled = true;
