@@ -113,7 +113,7 @@ if (!hasEnoughAPIs) {
     startButton.disabled = true;
 }
 
-let mediaTimestamp;
+let firstMediaTimestamp;
 
 function gotStream(stream) {
     // console.log('Received local stream');
@@ -134,8 +134,8 @@ function gotStream(stream) {
         }
 
         if (first) {
-            mediaTimestamp = value.timestamp;
-            console.log("media timestamp: ", mediaTimestamp);
+            firstMediaTimestamp = value.timestamp;
+            console.log("media timestamp: ", firstMediaTimestamp);
             first = false;
         }
 
@@ -247,6 +247,15 @@ worker.onmessage = ({data}) => {
         const {layered, timestamp, spatialIndex, temporalIndex, size, type, frameData} = data;
         let bytes = layered ? bytesL3T3 : bytesS3T3;
 
+
+        if (layered) {
+            const {delta} = data;
+            let mediaTimestamp = firstMediaTimestamp + delta;
+
+            // console.log("media timestamp", mediaTimestamp);
+        }
+
+
         const timestampId = `${layered}-${timestamp}`;
         const timestampLi = document.getElementById(timestampId);
 
@@ -273,15 +282,6 @@ worker.onmessage = ({data}) => {
             for (let idx = 0; idx < byteArray.length; idx++) {
                 byteStr += byteArray[idx].toString(16).padStart(2, '0') + ' ';
             }
-
-
-            let obuHeader = parseOBUHeader(byteArray[0]);
-
-            if (obuHeader.extensionFlag) {
-                obuHeader.extension = parseOBUExtensionHeader(byteArray[1]);
-            }
-
-            console.log("OBU Header", obuHeader);
 
             bytes.innerHTML = `
                     <div style="padding-bottom: 8px;">
