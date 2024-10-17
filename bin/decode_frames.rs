@@ -9,16 +9,12 @@ use libdav1d_sys::{
     Dav1dContext, Dav1dPicture, Dav1dSettings,
 };
 
+use parser::parse_hex_string;
+
 #[derive(Parser, Debug)]
 #[command(version, about, long_about=None)]
 struct Args {
     data: String,
-}
-
-fn parse_hex_string(data: &str) -> Vec<u8> {
-    data.split_whitespace()
-        .map(|hex| u8::from_str_radix(&hex, 16).expect("Invalid hex input"))
-        .collect::<Vec<u8>>()
 }
 
 fn main() -> Result<()> {
