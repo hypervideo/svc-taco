@@ -3,15 +3,10 @@ extern crate eyre;
 extern crate libdav1d_sys;
 
 use clap::Parser;
-use eyre::{eyre, Ok, Result};
+use eyre::{eyre, Result};
 use libdav1d_sys::{
-    dav1d_data_create, dav1d_data_wrap, dav1d_default_settings, DAV1D_ERR, dav1d_get_picture,
-    dav1d_open, dav1d_parse_sequence_header, dav1d_send_data, Dav1dAdaptiveBoolean,
-    Dav1dChromaSamplePosition, Dav1dColorPrimaries, Dav1dContext, Dav1dDecodeFrameType, Dav1dLogger,
-    Dav1dMatrixCoefficients, Dav1dPicAllocator, Dav1dPicture, Dav1dPixelLayout,
-    Dav1dSequenceHeader,
-    Dav1dSequenceHeader_Dav1dSequenceHeaderOperatingParameterInfo, Dav1dSequenceHeader_Dav1dSequenceHeaderOperatingPoint,
-    Dav1dSettings, Dav1dTransferCharacteristics,
+    dav1d_data_create, dav1d_default_settings, dav1d_get_picture, dav1d_open, dav1d_send_data,
+    Dav1dContext, Dav1dPicture, Dav1dSettings,
 };
 
 #[derive(Parser, Debug)]
@@ -86,8 +81,6 @@ fn main() -> Result<()> {
         println!("  Show frame: {}", frame_header.show_frame);
         println!("  Showable frame: {}", frame_header.showable_frame);
     }
-
-    Ok(())
 }
 
 #[cfg(test)]
