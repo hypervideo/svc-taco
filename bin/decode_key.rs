@@ -1,9 +1,9 @@
 extern crate clap;
 extern crate eyre;
 extern crate libdav1d_sys;
-
 use clap::Parser;
 use eyre::{Ok, Result};
+use pretty_assertions::assert_eq;
 
 use parser::parse_sequence_header;
 
