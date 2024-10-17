@@ -1,5 +1,15 @@
 [package]
 name = "parser"
+edition = "2021"
+
+[[bin]]
+name = "decode_frames"
+path = "bin/decode_frames.rs"
+
+[[bin]]
+name = "decode_key"
+path = "bin/decode_key.rs"
+
 
 [dependencies]
 clap = { version = "4.5.20", features = ["derive"] }
