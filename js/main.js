@@ -8,13 +8,20 @@ const video2 = document.querySelector('video#video2');
 const video2a = document.querySelector('video#video2a');
 const video3 = document.querySelector('video#video3');
 
-video2.addEventListener('resize', () => {
-    // console.log(`resize: Remote video size changed to ${video2.videoWidth}x${video2.videoHeight}`);
-});
+const selectSecondarySVCMode = document.getElementById('secondary-svc-mode-select');
 
-video3.addEventListener('resize', () => {
-    // console.log(`resize: Decoder video size changed to ${video3.videoWidth}x${video3.videoHeight}`);
-});
+const secondarySVCModeTitle = document.getElementById('secondary-svc-mode');
+
+secondarySVCModeTitle.innerText = 'L1T3';
+
+selectSecondarySVCMode.addEventListener('change', (event) => {
+    const {value: secondarySVCMode} = event.target;
+
+    console.log(String(secondarySVCMode));
+
+    secondarySVCModeTitle.innerText = secondarySVCMode;
+})
+
 
 const startButton = document.getElementById('startButton');
 const callButton = document.getElementById('callButton');
@@ -309,7 +316,7 @@ worker.onmessage = ({data}) => {
             const ul = timestampLi.querySelector('ul');
             ul.appendChild(frameLi);
         } else {
-            const containerUl = document.getElementById(layered ? 'l3t3-entries' : 's3t3-entries');
+            const containerUl = document.getElementById(layered ? 'l3t3-entries' : 'secondary-entries');
 
             const timestampLi = document.createElement('li');
             timestampLi.setAttribute('id', timestampId);
@@ -325,12 +332,13 @@ worker.onmessage = ({data}) => {
     }
 };
 
-const bytesS3T3 = document.getElementById('s3t3-frame-bytes');
+const bytesS3T3 = document.getElementById('secondary-frame-bytes');
 const bytesL3T3 = document.getElementById('l3t3-frame-bytes');
 
 async function call() {
     callButton.disabled = true;
     hangupButton.disabled = false;
+    selectSecondarySVCMode.disabled = true;
 
     startToEnd = new VideoPipe(
         localStream,
@@ -363,7 +371,7 @@ async function call() {
 
             gotRemoteStream(e.streams[0], video2a);
         },
-        'L1T3',
+        secondarySVCModeTitle.innerText,
     );
     secondaryStartToEnd.pc1.getSenders().forEach((s) => setupSenderTransform(s, false));
     await secondaryStartToEnd.negotiate();
