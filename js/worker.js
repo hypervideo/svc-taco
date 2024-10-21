@@ -65,6 +65,8 @@ initializeDecoder();
 let highestSpatialLayer = 3,
     highestTemporalLayer = 3;
 
+let newSpatialLayer = highestSpatialLayer;
+
 let firstChunkTimestamp = null;
 let firstChunkSecondaryTimestamp = null;
 
@@ -84,7 +86,6 @@ async function handleTransform(operation, readable, writable) {
                 const delta = timestamp - firstChunkTimestamp;
                 const size = data.byteLength;
 
-                console.log(`layered`, {timestamp, spatialIndex, temporalIndex, size, type});
 
                 postMessage({
                     operation: 'encoded-frame',
@@ -143,16 +144,26 @@ async function handleTransform(operation, readable, writable) {
                 const {temporalIndex, spatialIndex, width, height} = encodedFrame.getMetadata();
                 const {timestamp, data, type} = encodedFrame;
 
-                if (temporalIndex < highestTemporalLayer && spatialIndex < highestSpatialLayer) {
-                    // console.log("Decoding encodedChunk: ", {timestamp, temporalIndex, spatialIndex})
+                if (newSpatialLayer !== highestSpatialLayer) {
+                    console.log("mismatch");
 
-                    const chunk = new EncodedVideoChunk({
-                        timestamp,
-                        data,
-                        type,
-                    });
+                    if (type === 'key') {
+                        await videoDecoder.flush();
+                        highestSpatialLayer = newSpatialLayer;
+                    }
+                }
 
-                    await videoDecoder.decode(chunk);
+
+                if (spatialIndex < highestSpatialLayer) {
+                    if (temporalIndex < highestTemporalLayer) {
+                        const chunk = new EncodedVideoChunk({
+                            timestamp,
+                            data,
+                            type,
+                        });
+
+                        await videoDecoder.decode(chunk);
+                    }
                 }
 
                 controller.enqueue(encodedFrame);
@@ -201,10 +212,9 @@ onmessage = async ({data}) => {
         if (temporal) {
             highestTemporalLayer = layer;
         } else {
-            highestSpatialLayer = layer;
+            newSpatialLayer = layer;
         }
 
-        // console.log("LAYER CHANGE!", data);
     }
 };
 
