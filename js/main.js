@@ -10,6 +10,9 @@ const video3 = document.querySelector('video#video3');
 
 const selectSecondarySVCMode = document.getElementById('secondary-svc-mode-select');
 
+const videoWidth = 640, videoHeight = 480;
+
+const primarySVCModeTitle = 'L3T3';
 const secondarySVCModeTitle = document.getElementById('secondary-svc-mode');
 
 secondarySVCModeTitle.innerText = 'L1T3';
@@ -161,8 +164,8 @@ async function start() {
     const options = {
         audio: false,
         video: {
-            width: 1280,
-            height: 720,
+            width: videoWidth,
+            height: videoHeight,
         },
     };
     navigator.mediaDevices
@@ -175,7 +178,7 @@ async function start() {
 
     try {
         const av1Profile = 'video/av01.0.04M.08';
-        const modes = ['S3T3', secondarySVCModeTitle.innerText];
+        const modes = [primarySVCModeTitle, secondarySVCModeTitle.innerText];
 
         for (let idx = 0; idx <= modes.length - 1; idx++) {
             const mode = modes[idx];
@@ -183,8 +186,8 @@ async function start() {
                 type: 'webrtc',
                 video: {
                     contentType: av1Profile,
-                    width: 640,
-                    height: 480,
+                    width: videoWidth,
+                    height: videoHeight,
                     bitrate: 10000,
                     framerate: 29.97,
                     scalabilityMode: mode
@@ -358,7 +361,7 @@ async function call() {
 
             gotRemoteStream(e.streams[0], video2);
         },
-        'L3T3',
+        primarySVCModeTitle,
     );
     startToEnd.pc1.getSenders().forEach((s) => setupSenderTransform(s, true));
     await startToEnd.negotiate();
