@@ -153,17 +153,14 @@ async function handleTransform(operation, readable, writable) {
                     }
                 }
 
+                if (temporalIndex < highestTemporalLayer) {
+                    const chunk = new EncodedVideoChunk({
+                        timestamp,
+                        data,
+                        type,
+                    });
 
-                if (spatialIndex < highestSpatialLayer) {
-                    if (temporalIndex < highestTemporalLayer) {
-                        const chunk = new EncodedVideoChunk({
-                            timestamp,
-                            data,
-                            type,
-                        });
-
-                        await videoDecoder.decode(chunk);
-                    }
+                    await videoDecoder.decode(chunk);
                 }
 
                 controller.enqueue(encodedFrame);

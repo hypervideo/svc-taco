@@ -10,9 +10,15 @@ const video3 = document.querySelector('video#video3');
 
 const selectSecondarySVCMode = document.getElementById('secondary-svc-mode-select');
 
-const videoWidth = 640, videoHeight = 480;
+const resolutions = [
+    {width: 320, height: 240},
+    {width: 640, height: 480},
+    {width: 1280, height: 720}
+]
 
-const primarySVCModeTitle = 'L3T3';
+const {width: videoWidth, height: videoHeight} = resolutions[0];
+
+const primarySVCModeTitle = 'S3T3';
 const secondarySVCModeTitle = document.getElementById('secondary-svc-mode');
 
 secondarySVCModeTitle.innerText = 'L1T3';
@@ -35,6 +41,7 @@ const banner = document.querySelector('#banner');
 const spatialSelect = document.getElementById('spatial');
 const temporalSelect = document.getElementById('temporal');
 
+/*
 spatialSelect.addEventListener('change', (event) => {
     const spatialLayer = Number(event.target.value);
     // console.log(`Spatial layer changed to: ${spatialLayer}`);
@@ -45,6 +52,7 @@ spatialSelect.addEventListener('change', (event) => {
         layer: spatialLayer,
     });
 });
+ */
 
 temporalSelect.addEventListener('change', (event) => {
     const temporalLayer = Number(event.target.value);
