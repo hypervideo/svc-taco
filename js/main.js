@@ -174,21 +174,26 @@ async function start() {
         });
 
     try {
-        let config = {
-            type: 'webrtc',
-            video: {
-                contentType: 'video/av01.0.04M.08',
-                scalabilityMode: 'S3T3',
-                width: 1280,
-                height: 720,
-                bitrate: 10000,
-                framerate: 29.97,
-            },
-        };
+        const av1Profile = 'video/av01.0.04M.08';
+        const modes = ['S3T3', secondarySVCModeTitle.innerText];
 
-        await navigator.mediaCapabilities.encodingInfo(config);
+        for (let idx = 0; idx <= modes.length - 1; idx++) {
+            const mode = modes[idx];
+            const result = await navigator.mediaCapabilities.encodingInfo({
+                type: 'webrtc',
+                video: {
+                    contentType: av1Profile,
+                    width: 640,
+                    height: 480,
+                    bitrate: 10000,
+                    framerate: 29.97,
+                    scalabilityMode: mode
+                }
+            });
 
-        // console.log("encoding info: ", config);
+            const {supported, smooth, powerEfficient} = result;
+            console.log({mode, supported, smooth, powerEfficient});
+        }
     } catch (e) {
         throw new Error(`Failed to configure WebRTC: ${e}`);
     }
