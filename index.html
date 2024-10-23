@@ -137,11 +137,11 @@
         <div style="margin-right: 8px">
             <div style="display: flex;">
                 <select id="secondary-svc-mode-select" style="margin-right: 4px;">
-                    <option selected>L1T3</option>
+                    <option>L1T3</option>
                     <option>L2T3</option>
                     <option>S2T3</option>
                     <option>S2T3h</option>
-                    <option>S3T3</option>
+                    <option selected>S3T3</option>
                     <option>S3T3h</option>
                     <option>L2T3_KEY</option>
                     <option>L3T3_KEY</option>
@@ -156,15 +156,24 @@
         </div>
     </div>
     <div style="flex-grow: 1">
-        <div>Byte Content</div>
+        <div>Statistics</div>
         <div style="display: flex">
             <div style="min-width: 10em; margin-right: 6em">
-                <div id="secondary-svc-mode">
+                <div style="display: flex;">
+                    <div id="secondary-svc-mode" style="margin-right: 4px">
+                    </div>
+                    <div id="secondary-total-bytes"></div>
                 </div>
                 <div id="secondary-frame-bytes" style="max-width: 40em"></div>
             </div>
             <div>
-                L3T3
+                <div style="display: flex">
+                    <div style="margin-right: 4px;;">
+                        L3T3
+                    </div>
+                    <div id="primary-total-bytes">
+                    </div>
+                </div>
                 <div id="l3t3-frame-bytes" style="max-width: 40em"></div>
             </div>
         </div>
