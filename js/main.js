@@ -267,8 +267,10 @@ worker.postMessage(
 
 let previousTimestamp = null, previousSecondaryTimestamp = null;
 
-let primaryTotalBytes = document.getElementById('primary-total-bytes');
-let secondaryTotalBytes = document.getElementById('secondary-total-bytes');
+let primaryTotalBytesElement = document.getElementById('primary-total-bytes');
+let secondaryTotalBytesElement = document.getElementById('secondary-total-bytes');
+
+let primaryTotalBytes = 0.0, secondaryTotalBytes = 0.0;
 
 worker.onmessage = ({data}) => {
     if (data.operation === 'track-ready') {
@@ -280,13 +282,8 @@ worker.onmessage = ({data}) => {
         let bytes = layered ? bytesL3T3 : bytesS3T3;
         let prevTimestamp = layered ? previousTimestamp : previousSecondaryTimestamp;
 
-        let totalBytes = Number((layered ? primaryTotalBytes.innerText : secondaryTotalBytes.innerText).replace(/,/g, '')) + size;
-
-        if (layered) {
-            primaryTotalBytes.innerText = totalBytes.toLocaleString();
-        } else {
-            secondaryTotalBytes.innerText = totalBytes.toLocaleString();
-        }
+        layered ? primaryTotalBytes += size : secondaryTotalBytes += size;
+        layered ? primaryTotalBytesElement.innerText = Number(primaryTotalBytes.toFixed(2)).toLocaleString() : secondaryTotalBytesElement.innerText = Number(secondaryTotalBytes.toFixed(2)).toLocaleString();
 
         if (!prevTimestamp) {
             prevTimestamp = timestamp;
