@@ -21,11 +21,8 @@ const videoDecoder = new VideoDecoder({
             visibleRect,
         } = frame;
 
-        // // console.log("Good frame", {timestamp, codedWidth, codedHeight});
-
         if (timestampCatalog.has(timestamp)) {
             timestampCatalog.set(timestamp, timestampCatalog.get(timestamp) + 1);
-            // console.log(`Duplicate timestamp video frame encountered`);
         } else {
             timestampCatalog.set(timestamp, 1);
         }
@@ -36,7 +33,7 @@ const videoDecoder = new VideoDecoder({
         let message = error.message;
         let code = error.name;
 
-        // console.error(`Failed to decode: `, message, code);
+        throw new Error(`Failed to decode: ${message}, ${code}`);
     },
 });
 
@@ -144,14 +141,12 @@ async function handleTransform(operation, readable, writable) {
                 const {temporalIndex, spatialIndex, width, height} = encodedFrame.getMetadata();
                 const {timestamp, data, type} = encodedFrame;
 
-                if (newSpatialLayer !== highestSpatialLayer) {
-                    console.log("mismatch");
-
-                    if (type === 'key') {
-                        await videoDecoder.flush();
-                        highestSpatialLayer = newSpatialLayer;
-                    }
-                }
+                // if (newSpatialLayer !== highestSpatialLayer) {
+                //     if (type === 'key') {
+                //         await videoDecoder.flush();
+                //         highestSpatialLayer = newSpatialLayer;
+                //     }
+                // }
 
                 if (temporalIndex < highestTemporalLayer) {
                     const chunk = new EncodedVideoChunk({
@@ -172,7 +167,7 @@ async function handleTransform(operation, readable, writable) {
             async transform(encodedFrame, controller) {
                 const {temporalIndex, spatialIndex} = encodedFrame.getMetadata();
 
-                if (spatialIndex === 2) {
+                if (spatialIndex === 1) {
                     controller.enqueue(encodedFrame);
                 }
             },

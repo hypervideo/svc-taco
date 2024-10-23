@@ -16,12 +16,12 @@ const resolutions = [
     {width: 1280, height: 720}
 ]
 
-const {width: videoWidth, height: videoHeight} = resolutions[0];
+const {width: videoWidth, height: videoHeight} = resolutions[2];
 
-const primarySVCModeTitle = 'S3T3';
+const primarySVCModeTitle = 'L3T3';
 const secondarySVCModeTitle = document.getElementById('secondary-svc-mode');
 
-secondarySVCModeTitle.innerText = 'L1T3';
+secondarySVCModeTitle.innerText = 'S3T3';
 
 selectSecondarySVCMode.addEventListener('change', (event) => {
     const {value: secondarySVCMode} = event.target;
@@ -263,6 +263,9 @@ worker.postMessage(
 
 let previousTimestamp = null, previousSecondaryTimestamp = null;
 
+let primaryTotalBytes = document.getElementById('primary-total-bytes');
+let secondaryTotalBytes = document.getElementById('secondary-total-bytes');
+
 worker.onmessage = ({data}) => {
     if (data.operation === 'track-ready') {
         video3.srcObject = new MediaStream([mediaStreamTrackGenerator]);
@@ -273,7 +276,13 @@ worker.onmessage = ({data}) => {
         let bytes = layered ? bytesL3T3 : bytesS3T3;
         let prevTimestamp = layered ? previousTimestamp : previousSecondaryTimestamp;
 
-        timestamp = firstMediaTimestamp + delta;
+        let totalBytes = Number((layered ? primaryTotalBytes.innerText : secondaryTotalBytes.innerText).replace(/,/g, '')) + size;
+
+        if (layered) {
+            primaryTotalBytes.innerText = totalBytes.toLocaleString();
+        } else {
+            secondaryTotalBytes.innerText = totalBytes.toLocaleString();
+        }
 
         if (!prevTimestamp) {
             prevTimestamp = timestamp;
