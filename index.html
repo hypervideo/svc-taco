@@ -151,7 +151,18 @@
             <ul id="secondary-entries"></ul>
         </div>
         <div>
-            L3T3 Encoded Frames
+            <select id="primary-svc-mode-select" style="margin-right: 4px;">
+                <option>L1T3</option>
+                <option>L2T3</option>
+                <option selected>L3T3</option>
+                <option>S2T3</option>
+                <option>S2T3h</option>
+                <option>S3T3</option>
+                <option>S3T3h</option>
+                <option>L2T3_KEY</option>
+                <option>L3T3_KEY</option>
+            </select>
+            Encoded Frames
             <ul id="l3t3-entries"></ul>
         </div>
     </div>
@@ -168,8 +179,7 @@
             </div>
             <div>
                 <div style="display: flex">
-                    <div style="margin-right: 4px;;">
-                        L3T3
+                    <div id="primary-svc-mode" style="margin-right: 4px;;">
                     </div>
                     <div id="primary-total-bytes">
                     </div>
