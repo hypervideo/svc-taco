@@ -8,6 +8,7 @@ const video2 = document.querySelector('video#video2');
 const video2a = document.querySelector('video#video2a');
 const video3 = document.querySelector('video#video3');
 
+const selectPrimarySVCMode = document.getElementById('primary-svc-mode-select');
 const selectSecondarySVCMode = document.getElementById('secondary-svc-mode-select');
 
 const resolutions = [
@@ -18,16 +19,19 @@ const resolutions = [
 
 const {width: videoWidth, height: videoHeight} = resolutions[2];
 
-const primarySVCModeTitle = 'L3T3';
-const secondarySVCModeTitle = document.getElementById('secondary-svc-mode');
+const primarySVCModeTitle = document.getElementById('primary-svc-mode');
+primarySVCModeTitle.innerText = 'L3T3';
 
+const secondarySVCModeTitle = document.getElementById('secondary-svc-mode');
 secondarySVCModeTitle.innerText = 'S3T3';
+
+selectPrimarySVCMode.addEventListener('change', (event) => {
+    const {value: primarySVCMode} = event.target;
+    primarySVCModeTitle.innerText = primarySVCMode;
+})
 
 selectSecondarySVCMode.addEventListener('change', (event) => {
     const {value: secondarySVCMode} = event.target;
-
-    console.log(String(secondarySVCMode));
-
     secondarySVCModeTitle.innerText = secondarySVCMode;
 })
 
@@ -186,7 +190,7 @@ async function start() {
 
     try {
         const av1Profile = 'video/av01.0.04M.08';
-        const modes = [primarySVCModeTitle, secondarySVCModeTitle.innerText];
+        const modes = [primarySVCModeTitle.innerText, secondarySVCModeTitle.innerText];
 
         for (let idx = 0; idx <= modes.length - 1; idx++) {
             const mode = modes[idx];
@@ -363,6 +367,7 @@ const bytesL3T3 = document.getElementById('l3t3-frame-bytes');
 async function call() {
     callButton.disabled = true;
     hangupButton.disabled = false;
+    selectPrimarySVCMode.disabled = true;
     selectSecondarySVCMode.disabled = true;
 
     startToEnd = new VideoPipe(
@@ -378,7 +383,7 @@ async function call() {
 
             gotRemoteStream(e.streams[0], video2);
         },
-        primarySVCModeTitle,
+        primarySVCModeTitle.innerText,
     );
     startToEnd.pc1.getSenders().forEach((s) => setupSenderTransform(s, true));
     await startToEnd.negotiate();
