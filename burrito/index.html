@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SVC-Burrito</title>
+    <style>
+        .video {
+            width: 320px;
+            height: 240px;
+        }
+    </style>
+</head>
+<body style="width: 100vw;">
+<div style="display: flex;">
+    <button id="startButton">Start (Press 1)</button>
+    <button disabled id="callButton">Call (Press 2)</button>
+    <button disabled id="hangupButton">Hang Up (Press 3)</button>
+</div>
+
+<div style="display: flex; width: 100vw;">
+    <div>
+        <div>240p</div>
+        <video autoplay class="video" id="spatial-240-video" muted playsinline></video>
+    </div>
+    <div>
+        <div>480p</div>
+        <video autoplay class="video" id="spatial-480-video" muted playsinline></video>
+    </div>
+    <div>
+        <div>720p</div>
+        <video autoplay class="video" id="spatial-720-video" muted playsinline></video>
+    </div>
+</div>
+
+<div style="display: flex; width: 100vw;">
+    <div>
+        <div>240p</div>
+        <video autoplay class="video" id="spatial-240-remote-video" muted playsinline></video>
+    </div>
+    <div>
+        <div>480p</div>
+        <video autoplay class="video" id="spatial-480-remote-video" muted playsinline></video>
+    </div>
+    <div>
+        <div>720p</div>
+        <video autoplay class="video" id="spatial-720-remote-video" muted playsinline></video>
+    </div>
+</div>
+
+
+<div style="display: flex; width: 100vw;">
+    <div>
+        <div>240p</div>
+        <video autoplay class="video" id="spatial-240-webcodec-video" muted playsinline></video>
+    </div>
+    <div>
+        <div>480p</div>
+        <video autoplay class="video" id="spatial-480-webcodec-video" muted playsinline></video>
+    </div>
+    <div>
+        <div>720p</div>
+        <video autoplay class="video" id="spatial-720-webcodec-video" muted playsinline></video>
+    </div>
+</div>
+
+
+<script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+<script src="../js/videopipe.js"></script>
+<script async src="./burrito.js"></script>
+</body>
+</html>
