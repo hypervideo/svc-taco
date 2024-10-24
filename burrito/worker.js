@@ -91,6 +91,13 @@ async function handleTransform(resolution, readable, writable) {
                 type,
             });
 
+            postMessage({
+                operation: `onTransformFrame`,
+                resolution,
+                encodedVideoChunk: chunk
+            });
+
+
             await videoDecoder.decode(chunk);
 
             console.log('transform', {resolution, temporalIndex, spatialIndex, width, height});
