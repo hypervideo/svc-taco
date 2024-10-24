@@ -1,6 +1,5 @@
 'use-strict';
 
-
 let videoDecoder240p, videoDecoder480p, videoDecoder720p;
 
 async function setVideoDecoder(resolution, writer) {
@@ -94,6 +93,8 @@ async function handleTransform(resolution, readable, writable) {
 
             await videoDecoder.decode(chunk);
 
+            console.log('transform', {resolution, temporalIndex, spatialIndex, width, height});
+
             controller.enqueue(encodedFrame);
         }
     })
@@ -132,5 +133,4 @@ onmessage = async ({data}) => {
         return await handleTransform(resolution, readable, writable);
     }
 };
-
 
