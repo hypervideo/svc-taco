@@ -68,6 +68,16 @@ let resolutions = [
     },
 ];
 
+
+// metrics
+
+const res240pBytesElement = document.getElementById('res-240-bytes');
+const res480pBytesElement = document.getElementById('res-480-bytes');
+const res720pBytesElement = document.getElementById('res-720-bytes');
+
+let res240pBytes = 0, res480pBytes = 0, res720pBytes = 0;
+
+// connection logic
 const worker = new Worker('./worker.js', {name: 'E2EE worker', type: 'module'});
 
 for (let idx = 0; idx <= resolutions.length - 1; idx++) {
@@ -107,6 +117,35 @@ worker.onmessage = async ({data}) => {
         webCodecVideoElement.srcObject = new MediaStream([webCodecTrackGenerator]);
     }
 
+
+    if (operation === 'onTransformFrame') {
+        console.log("received");
+        const {resolution, encodedVideoChunk} = data;
+
+        const {byteLength} = encodedVideoChunk;
+
+        switch (resolution) {
+            case '240p':
+                res240pBytes += byteLength;
+                res240pBytesElement.innerText = res240pBytes.toLocaleString()
+                break;
+
+            case '480p':
+                res480pBytes += byteLength;
+                res480pBytesElement.innerText = res480pBytes.toLocaleString();
+                break;
+
+            case '720p':
+                res720pBytes += byteLength;
+                res720pBytesElement.innerText = res720pBytes.toLocaleString();
+                break;
+
+            default:
+                throw new Error(`Unsupported resolution: ${resolution}`);
+        }
+
+
+    }
 }
 
 document.addEventListener('keydown', (e) => {
