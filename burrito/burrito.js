@@ -39,6 +39,7 @@ let resolutions = [
         webCodecVideoElement: spatial240pWebCodecVideoElement,
         webCodecTrackGenerator: mediaStreamTrackGenerator240p,
         webCodecWritable: mediaStreamWritable240p,
+        scaleResolutionDownBy: 4.5,
     },
     {
         title: "480p",
@@ -52,6 +53,7 @@ let resolutions = [
         webCodecVideoElement: spatial480pWebCodecVideoElement,
         webCodecTrackGenerator: mediaStreamTrackGenerator480p,
         webCodecWritable: mediaStreamWritable480p,
+        scaleResolutionDownBy: 2.25
     },
     {
         title: "720p",
@@ -65,6 +67,7 @@ let resolutions = [
         webCodecVideoElement: spatial720pWebCodecVideoElement,
         webCodecTrackGenerator: mediaStreamTrackGenerator720p,
         webCodecWritable: mediaStreamWritable720p,
+        scaleResolutionDownBy: 1.5,
     },
 ];
 
@@ -246,7 +249,8 @@ async function call() {
 
                 resolution.remoteVideoElement.srcObject = e.streams[0];
             },
-            scalabilityMode
+            scalabilityMode,
+            resolution.scaleResolutionDownBy
         );
 
         resolution.videoPipe.pc1.getSenders().forEach((s) => {

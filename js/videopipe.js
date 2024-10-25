@@ -21,7 +21,7 @@
 //
 'use strict';
 
-function VideoPipe(stream, forceSend, forceReceive, handler, scalabilityMode) {
+function VideoPipe(stream, forceSend, forceReceive, handler, scalabilityMode, scaleResolutionDownBy) {
     this.pc1 = new RTCPeerConnection({
         encodedInsertableStreams: forceSend,
     });
@@ -36,7 +36,12 @@ function VideoPipe(stream, forceSend, forceReceive, handler, scalabilityMode) {
         } else {
             let tr = this.pc1.addTransceiver(track, {
                 streams: [stream],
-                sendEncodings: [{ scalabilityMode: scalabilityMode }],
+                sendEncodings: [
+                    {
+                        scalabilityMode: scalabilityMode,
+                        scaleResolutionDownBy: scaleResolutionDownBy
+                    }
+                ],
             });
 
             const videoCodecs = RTCRtpSender.getCapabilities('video').codecs;
@@ -59,7 +64,7 @@ VideoPipe.prototype.negotiate = async function () {
 
     const offer = await this.pc1.createOffer();
     // Disable video/red to allow for easier inspection in Wireshark.
-    await this.pc2.setRemoteDescription({ type: 'offer', sdp: offer.sdp.replace('red/90000', 'green/90000') });
+    await this.pc2.setRemoteDescription({type: 'offer', sdp: offer.sdp.replace('red/90000', 'green/90000')});
     await this.pc1.setLocalDescription(offer);
 
     const answer = await this.pc2.createAnswer();
