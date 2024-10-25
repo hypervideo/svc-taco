@@ -382,6 +382,7 @@ async function call() {
             gotRemoteStream(e.streams[0], video2);
         },
         primarySVCModeTitle.innerText,
+        1.0,
     );
     startToEnd.pc1.getSenders().forEach((s) => setupSenderTransform(s, true));
     await startToEnd.negotiate();
@@ -400,6 +401,7 @@ async function call() {
             gotRemoteStream(e.streams[0], video2a);
         },
         secondarySVCModeTitle.innerText,
+        1.0,
     );
     secondaryStartToEnd.pc1.getSenders().forEach((s) => setupSenderTransform(s, false));
     await secondaryStartToEnd.negotiate();
