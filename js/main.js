@@ -23,10 +23,11 @@ const primarySVCModeTitle = document.getElementById('primary-svc-mode');
 primarySVCModeTitle.innerText = 'L3T3';
 
 const secondarySVCModeTitle = document.getElementById('secondary-svc-mode');
-secondarySVCModeTitle.innerText = 'S3T3';
+secondarySVCModeTitle.innerText = 'L1T3';
 
 selectPrimarySVCMode.addEventListener('change', (event) => {
     const {value: primarySVCMode} = event.target;
+    console.log("changed")
     primarySVCModeTitle.innerText = primarySVCMode;
 })
 
