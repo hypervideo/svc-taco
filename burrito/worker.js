@@ -3,7 +3,6 @@
 let videoDecoder240p, videoDecoder480p, videoDecoder720p;
 
 async function setVideoDecoder(resolution, writer) {
-    console.log(`creating Video Decoder for `, {resolution});
 
     const videoDecoder = new VideoDecoder({
         output: async (frame) => {
