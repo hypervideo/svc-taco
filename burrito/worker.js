@@ -1,6 +1,6 @@
 'use-strict';
 
-let videoDecoder240p, videoDecoder480p, videoDecoder720p;
+let videoDecoder240p, videoDecoder480p, videoDecoder720p, videoDecoderL3T3;
 
 async function setVideoDecoder(resolution, writer) {
 
@@ -57,6 +57,9 @@ async function setVideoDecoder(resolution, writer) {
         case '720p':
             videoDecoder720p = videoDecoder;
             break;
+        case 'L3T3':
+            videoDecoderL3T3 = videoDecoder;
+            break;
         default:
             throw new Error(`Failed to set video decoder`);
     }
@@ -79,6 +82,9 @@ async function handleTransform(resolution, readable, writable) {
                     break;
                 case '720p':
                     videoDecoder = videoDecoder720p;
+                    break;
+                case 'L3T3':
+                    videoDecoder = videoDecoderL3T3;
                     break;
                 default:
                     throw new Error(`Unsupported resolution: ${resolution}`);
