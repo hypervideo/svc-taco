@@ -6,14 +6,17 @@ const av1Profile = 'video/av01.0.04M.08';
 const spatial240pVideoElement = document.getElementById('spatial-240-video');
 const spatial480pVideoElement = document.getElementById('spatial-480-video');
 const spatial720pVideoElement = document.getElementById('spatial-720-video');
+const spatialL3T3VideoElement = document.getElementById('spatial-l3t3-video');
 
 const spatial240pRemoteVideoElement = document.getElementById('spatial-240-remote-video');
 const spatial480pRemoteVideoElement = document.getElementById('spatial-480-remote-video');
 const spatial720pRemoteVideoElement = document.getElementById('spatial-720-remote-video');
+const spatialL3T3RemoteVideoElement = document.getElementById('spatial-l3t3-remote-video');
 
 const spatial240pWebCodecVideoElement = document.getElementById('spatial-240-webcodec-video');
 const spatial480pWebCodecVideoElement = document.getElementById('spatial-480-webcodec-video');
 const spatial720pWebCodecVideoElement = document.getElementById('spatial-720-webcodec-video');
+const spatialL3T3WebCodecVideoElement = document.getElementById('spatial-l3t3-webcodec-video');
 
 const mediaStreamTrackGenerator240p = new MediaStreamTrackGenerator({kind: 'video'});
 const mediaStreamWritable240p = mediaStreamTrackGenerator240p.writable;
@@ -24,6 +27,8 @@ const mediaStreamWritable480p = mediaStreamTrackGenerator480p.writable;
 const mediaStreamTrackGenerator720p = new MediaStreamTrackGenerator({kind: 'video'});
 const mediaStreamWritable720p = mediaStreamTrackGenerator720p.writable;
 
+const mediaStreamTrackGeneratorL3T3 = new MediaStreamTrackGenerator({kind: 'video'});
+const mediaStreamWritableL3T3 = mediaStreamTrackGeneratorL3T3.writable;
 
 let resolutions = [
     {
@@ -71,6 +76,21 @@ let resolutions = [
         scaleResolutionDownBy: 1.5,
         scalabilityMode: 'L1T3',
     },
+    {
+        title: "L3T3",
+        width: 1280,
+        height: 720,
+        videoElement: spatialL3T3VideoElement,
+        stream: null,
+        videoPipe: null,
+        remoteStream: null,
+        remoteVideoElement: spatialL3T3RemoteVideoElement,
+        webCodecVideoElement: spatialL3T3WebCodecVideoElement,
+        webCodecTrackGenerator: mediaStreamTrackGeneratorL3T3,
+        webCodecWritable: mediaStreamWritableL3T3,
+        scaleResolutionDownBy: 1.5,
+        scalabilityMode: 'L3T3',
+    },
 ];
 
 
@@ -81,8 +101,13 @@ const res480pBytesElement = document.getElementById('res-480-bytes');
 const res720pBytesElement = document.getElementById('res-720-bytes');
 
 const resTotalBytesElement = document.getElementById('res-total-bytes');
+const resL3T3BytesElement = document.getElementById('res-l3t3-bytes');
+
+const ordersOfMagnitudeElement = document.getElementById('orders-of-magnitude');
 
 let res240pBytes = 0, res480pBytes = 0, res720pBytes = 0, resTotalBytes = res240pBytes + res480pBytes + res720pBytes;
+let resL3T3Bytes = 0;
+
 
 // connection logic
 const worker = new Worker('./worker.js', {name: 'E2EE worker', type: 'module'});
@@ -114,6 +139,10 @@ worker.onmessage = async ({data}) => {
 
             case '720p':
                 idx = 2;
+                break;
+
+            case 'L3T3':
+                idx = 3;
                 break;
 
             default:
@@ -148,6 +177,11 @@ worker.onmessage = async ({data}) => {
                 res720pBytesElement.innerText = res720pBytes.toLocaleString();
                 break;
 
+            case 'L3T3':
+                resL3T3Bytes += byteLength;
+                resL3T3BytesElement.innerText = resL3T3Bytes.toLocaleString();
+                break;
+
             default:
                 throw new Error(`Unsupported resolution: ${resolution}`);
         }
@@ -155,6 +189,10 @@ worker.onmessage = async ({data}) => {
 
         resTotalBytes += byteLength;
         resTotalBytesElement.innerText = resTotalBytes.toLocaleString();
+
+        const ordersOfMagnitude = resTotalBytes / resL3T3Bytes;
+
+        ordersOfMagnitudeElement.innerText = (ordersOfMagnitude.toFixed(2)) + 'x';
 
     }
 }

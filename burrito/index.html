@@ -18,25 +18,34 @@
 </div>
 
 <div>Encoded Frame metrics</div>
-<div style="display: flex; font-family: monospace;">
-    <div style="margin-right: 8px;">
-        <p>240p</p>
-        <p id="res-240-bytes"></p>
+<div style="font-family: monospace;">
+    <div style="display: flex;">
+        <div style="margin-right: 8px;">
+            <p>240p</p>
+            <p id="res-240-bytes"></p>
+        </div>
+        <div style="margin-right: 8px;">
+            <p>480p</p>
+            <p id="res-480-bytes"></p>
+        </div>
+        <div style="margin-right: 8px;">
+            <p>720p</p>
+            <p id="res-720-bytes"></p>
+        </div>
+        <div style="margin-right: 8px">
+            <p>Total</p>
+            <p id="res-total-bytes"></p>
+        </div>
     </div>
-    <div style="margin-right: 8px;">
-        <p>480p</p>
-        <p id="res-480-bytes"></p>
+    <div>
+        <p>L3T3</p>
+        <p id="res-l3t3-bytes"></p>
     </div>
-    <div style="margin-right: 8px;">
-        <p>720p</p>
-        <p id="res-720-bytes"></p>
-    </div>
-    <div style="margin-right: 8px">
-        <p>Total</p>
-        <p id="res-total-bytes"></p>
+    <div>
+        <p>Orders of magnitude</p>
+        <p id="orders-of-magnitude"></p>
     </div>
 </div>
-
 
 <div>WebRTC Sender</div>
 <div style="display: flex; width: 100vw;">
@@ -51,6 +60,10 @@
     <div>
         <div>720p</div>
         <video autoplay class="video" id="spatial-720-video" muted playsinline></video>
+    </div>
+    <div>
+        <div>L3T3</div>
+        <video autoplay class="video" id="spatial-l3t3-video" muted playsinline></video>
     </div>
 </div>
 
@@ -68,6 +81,10 @@
         <div>720p</div>
         <video autoplay class="video" id="spatial-720-remote-video" muted playsinline></video>
     </div>
+    <div>
+        <div>L3T3</div>
+        <video autoplay class="video" id="spatial-l3t3-remote-video" muted playsinline></video>
+    </div>
 </div>
 
 
@@ -84,6 +101,10 @@
     <div>
         <div>720p</div>
         <video autoplay class="video" id="spatial-720-webcodec-video" muted playsinline></video>
+    </div>
+    <div>
+        <div>L3T3</div>
+        <video autoplay class="video" id="spatial-l3t3-webcodec-video" muted playsinline></video>
     </div>
 </div>
 
