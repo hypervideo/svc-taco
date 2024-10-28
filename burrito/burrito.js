@@ -78,7 +78,9 @@ const res240pBytesElement = document.getElementById('res-240-bytes');
 const res480pBytesElement = document.getElementById('res-480-bytes');
 const res720pBytesElement = document.getElementById('res-720-bytes');
 
-let res240pBytes = 0, res480pBytes = 0, res720pBytes = 0;
+const resTotalBytesElement = document.getElementById('res-total-bytes');
+
+let res240pBytes = 0, res480pBytes = 0, res720pBytes = 0, resTotalBytes = res240pBytes + res480pBytes + res720pBytes;
 
 // connection logic
 const worker = new Worker('./worker.js', {name: 'E2EE worker', type: 'module'});
@@ -127,6 +129,7 @@ worker.onmessage = async ({data}) => {
 
         const {byteLength} = encodedVideoChunk;
 
+
         switch (resolution) {
             case '240p':
                 res240pBytes += byteLength;
@@ -147,6 +150,9 @@ worker.onmessage = async ({data}) => {
                 throw new Error(`Unsupported resolution: ${resolution}`);
         }
 
+
+        resTotalBytes += byteLength;
+        resTotalBytesElement.innerText = resTotalBytes.toLocaleString();
 
     }
 }
