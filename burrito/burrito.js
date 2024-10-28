@@ -2,7 +2,6 @@
 
 // non negotiable constants
 const av1Profile = 'video/av01.0.04M.08';
-const scalabilityMode = 'L1T3';
 
 const spatial240pVideoElement = document.getElementById('spatial-240-video');
 const spatial480pVideoElement = document.getElementById('spatial-480-video');
@@ -40,6 +39,7 @@ let resolutions = [
         webCodecTrackGenerator: mediaStreamTrackGenerator240p,
         webCodecWritable: mediaStreamWritable240p,
         scaleResolutionDownBy: 4.5,
+        scalabilityMode: 'L1T3',
     },
     {
         title: "480p",
@@ -53,7 +53,8 @@ let resolutions = [
         webCodecVideoElement: spatial480pWebCodecVideoElement,
         webCodecTrackGenerator: mediaStreamTrackGenerator480p,
         webCodecWritable: mediaStreamWritable480p,
-        scaleResolutionDownBy: 2.25
+        scaleResolutionDownBy: 2.25,
+        scalabilityMode: 'L1T3',
     },
     {
         title: "720p",
@@ -68,6 +69,7 @@ let resolutions = [
         webCodecTrackGenerator: mediaStreamTrackGenerator720p,
         webCodecWritable: mediaStreamWritable720p,
         scaleResolutionDownBy: 1.5,
+        scalabilityMode: 'L1T3',
     },
 ];
 
@@ -188,7 +190,7 @@ callButton.onclick = call;
 hangupButton.onclick = hangup;
 
 async function requestLocalStream(resolution) {
-    let {width: videoWidth, height: videoHeight, videoElement, title} = resolution;
+    let {width: videoWidth, height: videoHeight, videoElement, title, scalabilityMode} = resolution;
 
     const options = {
         audio: false,
@@ -255,7 +257,7 @@ async function call() {
 
                 resolution.remoteVideoElement.srcObject = e.streams[0];
             },
-            scalabilityMode,
+            resolution.scalabilityMode,
             resolution.scaleResolutionDownBy
         );
 
